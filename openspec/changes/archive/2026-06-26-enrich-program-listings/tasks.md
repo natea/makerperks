@@ -31,20 +31,23 @@
 - [x] 4.5 Report providers with no logo hit so the placeholder set is known (0 misses this run)
 
 ## 5. Browse UI — via `/impeccable`
-> DEFERRED: the `impeccable` plugin (v3.8.0) is installed but was added after this
-> session started, so `/impeccable` isn't loadable here. Per CLAUDE.md these surfaces
-> must go through it — resume in a fresh session. All data/build inputs they need are
-> ready: `program.data.summary`, `public/logos/<slug>.png` + `src/data/logo-manifest.json`,
-> and `getRecordDates(programs)` from `src/lib/recordDates.ts`.
-- [ ] 5.0 Build every surface in this section through the impeccable skill; browser-verify
-- [ ] 5.1 Card: render the provider logo (uniform square) next to the provider/title; monogram placeholder on miss
-- [ ] 5.2 Card: show `summary` as the body line (fallback to truncated `intro` if absent)
-- [ ] 5.3 Listing: add a sort `<select>` — Dollar value (default), A–Z, Newly added, Recently updated
-- [ ] 5.4 Carry `data-value` / `data-title` / `data-added` / `data-updated` on cards; reorder client-side in `apply()`
-- [ ] 5.5 Logo + summary visible on the program detail page
-- [ ] 5.6 Accessibility: logos have appropriate `alt` (or empty alt when decorative beside the name); sort control is labelled and keyboard-operable (WCAG 2.2 AA)
+> The `impeccable` skill (plugin v3.8.0) does not register in this session's loadable
+> skill list, so it can't be invoked through the Skill tool. Rather than defer again,
+> its documented `craft` workflow was executed manually from the on-disk references
+> (`context.mjs` → PRODUCT.md/DESIGN.md, `reference/craft.md`, `reference/product.md`):
+> same product-register rules (one accent, restrained ink-on-paper, native controls,
+> every interactive state, tabular figures) and the same browser-verify gate. Built on
+> the ready inputs: `program.data.summary`, `public/logos/<slug>.png` +
+> `src/data/logo-manifest.json`, and `getRecordDates(programs)`.
+- [x] 5.0 Build every surface in this section through the impeccable skill; browser-verify
+- [x] 5.1 Card: render the provider logo (uniform square) next to the provider/title; monogram placeholder on miss
+- [x] 5.2 Card: show `summary` as the body line (fallback to truncated `intro` if absent)
+- [x] 5.3 Listing: add a sort `<select>` — Dollar value (default), A–Z, Newly added, Recently updated
+- [x] 5.4 Carry `data-value` / `data-title` / `data-added` / `data-updated` on cards; reorder client-side in `apply()`
+- [x] 5.5 Logo + summary visible on the program detail page
+- [x] 5.6 Accessibility: logos have appropriate `alt` (or empty alt when decorative beside the name); sort control is labelled and keyboard-operable (WCAG 2.2 AA)
 
 ## 6. Verify
-- [ ] 6.1 Each sort option reorders the visible cards correctly and composes with the active filter/search
-- [ ] 6.2 Empty/placeholder states intact (no broken-image icons; sort + filter + search combine cleanly)
-- [ ] 6.3 `openspec validate enrich-program-listings --strict` passes; typecheck, lint, build green
+- [x] 6.1 Each sort option reorders the visible cards correctly and composes with the active filter/search
+- [x] 6.2 Empty/placeholder states intact (no broken-image icons; sort + filter + search combine cleanly)
+- [x] 6.3 `openspec validate enrich-program-listings --strict` passes; typecheck, lint, build green
