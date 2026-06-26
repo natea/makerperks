@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { getPublishedPrograms, displayValue } from "../lib/programs";
+import { label } from "../lib/labels";
 import logoManifest from "../data/logo-manifest.json";
 
 const hasLogo = new Set(logoManifest as string[]);
@@ -57,6 +58,7 @@ export const GET: APIRoute = async () => {
       path: `/programs/${p.id}`,
       title: d.title,
       provider: d.provider_slug,
+      providerLabel: label(d.provider_slug),
       summary,
       tags: d.tags,
       value: displayValue(d),

@@ -2,6 +2,7 @@ import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { label } from "./labels";
 
 /**
  * Build-time Open Graph image generator (1200×630) for the social-sharing change.
@@ -134,11 +135,7 @@ function programCard(opts: { title: string; provider: string; value: string }) {
             },
             opts.provider.charAt(0).toUpperCase(),
           ),
-      el(
-        "div",
-        { fontSize: 30, color: C.inkMuted, textTransform: "capitalize" },
-        opts.provider,
-      ),
+      el("div", { fontSize: 30, color: C.inkMuted }, label(opts.provider)),
     ],
   );
   const body = el(

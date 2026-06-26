@@ -241,7 +241,6 @@
   .palette__results :global(.res__provider) {
     font-size: var(--fs-xs);
     color: var(--ink-muted);
-    text-transform: capitalize;
   }
   .palette__results :global(.res__value) {
     flex: none;
@@ -286,6 +285,7 @@
     path: string;
     title: string;
     provider: string;
+    providerLabel: string;
     summary: string;
     tags: string[];
     value: string;
@@ -382,7 +382,7 @@
               `<li class="res" role="option" id="res-${i}" aria-selected="${i === 0}" data-path="${e.path}">` +
               logoMarkup(e) +
               `<span class="res__main"><span class="res__title">${esc(e.title)}</span>` +
-              `<span class="res__provider">${esc(e.provider)}</span></span>` +
+              `<span class="res__provider">${esc(e.providerLabel)}</span></span>` +
               `<span class="res__value tnum">${esc(e.value)}</span></li>`,
           )
           .join("");

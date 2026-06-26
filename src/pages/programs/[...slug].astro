@@ -7,6 +7,7 @@ import {
 } from "../../lib/programs";
 import { personaById } from "../../lib/personas";
 import { programJsonLd } from "../../lib/jsonld";
+import { label } from "../../lib/labels";
 import logoManifest from "../../data/logo-manifest.json";
 
 export async function getStaticPaths() {
@@ -62,7 +63,7 @@ const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
             </span>
           )
         }
-        <span class="detail__provider">{d.provider_slug}</span>
+        <span class="detail__provider">{label(d.provider_slug)}</span>
       </div>
       <h1 class="detail__title">{d.title}</h1>
       <p class="detail__intro">{d.summary ?? d.intro}</p>
@@ -92,7 +93,7 @@ const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
       </div>
 
       <a class="btn btn--primary" href={d.url} rel="noopener" target="_blank">
-        Redeem on {d.provider_slug} ↗
+        Redeem on {label(d.provider_slug)} ↗
       </a>
     </header>
 
@@ -111,7 +112,7 @@ const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
             </p>
             <ul class="unlocks__list">
               {d.unlocks.map((u) => (
-                <li>{u}</li>
+                <li>{label(u)}</li>
               ))}
             </ul>
           </section>
@@ -262,7 +263,6 @@ const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
     .detail__provider {
       color: var(--ink-muted);
       font-size: var(--fs-sm);
-      text-transform: capitalize;
     }
     .detail__title {
       font-size: var(--fs-display);
@@ -383,7 +383,6 @@ const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
     }
     .unlocks__list li {
       font-size: var(--fs-sm);
-      text-transform: capitalize;
       padding: 0.3rem 0.7rem;
       border-radius: var(--r-sm);
       background: var(--surface);

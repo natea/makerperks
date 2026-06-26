@@ -1,5 +1,6 @@
 ---
 import { displayValue, programPath, type Program } from "../lib/programs";
+import { label } from "../lib/labels";
 import logoManifest from "../data/logo-manifest.json";
 
 interface Props {
@@ -52,7 +53,7 @@ const searchText =
           </span>
         )
       }
-      <span class="card__provider">{d.provider_slug}</span>
+      <span class="card__provider">{label(d.provider_slug)}</span>
     </div>
     <div class="card__flags">
       {d.aggregator && <span class="tag tag--gateway">Gateway</span>}
@@ -152,7 +153,6 @@ const searchText =
     font-size: var(--fs-xs);
     letter-spacing: 0.01em;
     color: var(--ink-muted);
-    text-transform: capitalize;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

@@ -8,6 +8,7 @@ import {
   type Audience,
 } from "../../lib/programs";
 import { getRecordDates } from "../../lib/recordDates";
+import { label } from "../../lib/labels";
 
 export async function getStaticPaths() {
   return PERSONAS.map((p) => ({ params: { audience: p.id } }));
@@ -125,7 +126,7 @@ const overflowCount = Math.max(0, tags.length - VISIBLE_FACETS);
               data-tag={t}
               type="button"
             >
-              {t}
+              {label(t)}
             </button>
           ))}
           {overflowCount > 0 && (
@@ -347,7 +348,6 @@ const overflowCount = Math.max(0, tags.length - VISIBLE_FACETS);
       border: 1px solid var(--hairline-strong);
       background: var(--paper);
       color: var(--ink-muted);
-      text-transform: capitalize;
       transition:
         border-color 0.14s ease,
         color 0.14s ease,
