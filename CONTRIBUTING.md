@@ -24,8 +24,12 @@ official program page.
 2. Follow the schema in [`src/program.schema.json`](src/program.schema.json).
    Required fields: `provider_slug`, `title`, `intro`, `description`, `url`,
    `max_value`, `audience`, `sources`, `verified`.
-3. `audience` is multi-valued — list **every** persona the program serves from:
-   `startup · student · oss · indie · ambassador · nonprofit`.
+3. `audience` is multi-valued — list **only** the personas the program _genuinely
+   serves_ (a real offering or eligibility path), from:
+   `startup · student · oss · indie · ambassador · nonprofit`. Tag a persona only
+   when the program itself offers it something — **not** because it appeared in a
+   list themed to that audience. A startup-only program is `[startup]`, even if you
+   found it on a "student deals" list.
 4. `verified` is the date (YYYY-MM-DD) you confirmed the offer on the official page.
    Be honest — don't post-date it.
 5. Quote dates: `verified: "2026-06-25"`.
