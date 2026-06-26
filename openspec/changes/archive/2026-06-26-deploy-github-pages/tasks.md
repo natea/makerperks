@@ -27,8 +27,8 @@
 
 - [x] 3.1 Pages Source = **GitHub Actions** (set via `gh api ... -f build_type=workflow`)
 - [x] 3.2 Custom domain set to `www.makerperks.com` (matches `public/CNAME`)
-- [ ] 3.3 Enable **Enforce HTTPS** once the GitHub cert finishes provisioning
-  (`cert_state: new` at deploy time; auto-issues within ~15 min of DNS going live)
+- [x] 3.3 **Enforce HTTPS** enabled (cert authorized; `http://www.makerperks.com`
+  301-upgrades to HTTPS)
 
 ## 4. Cloudflare (done via API token)
 
