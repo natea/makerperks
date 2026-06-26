@@ -1,0 +1,20 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: vercel
+summary: "Frontend cloud platform for deploying and hosting web apps"
+title: Vercel Pro for Open Source
+intro: Free Vercel Pro plan for qualifying open-source projects.
+description: Vercel offers free Pro-plan hosting and collaboration features for
+  eligible open-source projects, plus startup credits.
+url: https://vercel.com/guides/can-i-get-vercel-pro-for-open-source
+value_type: free_tier
+max_value: 240
+tags:
+  - cloud
+  - oss
+audience:
+  - oss
+  - startup
+sources:
+  - awesome-student-developer-deals

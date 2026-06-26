@@ -1,0 +1,23 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: canva
+summary: "Online graphic design tool with templates and brand kits"
+title: Canva for Education & Nonprofits
+intro: Free Canva Pro for verified students, teachers, and non-profits.
+description: Canva provides free Pro access — brand kits, background remover,
+  premium templates — to verified students and educators and to registered
+  501(c)(3) non-profits.
+url: https://www.canva.com/canva-for-nonprofits/
+value_type: free_tier
+max_value: 120
+tags:
+  - design
+  - students
+  - nonprofit
+audience:
+  - student
+  - nonprofit
+sources:
+  - awesome-student-developer-deals
+  - tresni-awesome-nonprofit

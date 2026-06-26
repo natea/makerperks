@@ -1,0 +1,439 @@
+---
+import Base from "../../layouts/Base.astro";
+import {
+  getPublishedPrograms,
+  displayValue,
+  type Program,
+} from "../../lib/programs";
+import { personaById } from "../../lib/personas";
+import { programJsonLd } from "../../lib/jsonld";
+
+export async function getStaticPaths() {
+  const programs = await getPublishedPrograms();
+  return programs.map((program) => ({
+    params: { slug: program.id },
+    props: { program },
+  }));
+}
+
+const { program } = Astro.props as { program: Program };
+const d = program.data;
+const site = (Astro.site?.toString() ?? "https://makerperks.com").replace(
+  /\/$/,
+  "",
+);
+const jsonLd = programJsonLd(program, site + "/programs/" + program.id);
+
+const effortWords = ["", "Very low", "Low", "Moderate", "High"];
+---
+
+<Base title={`${d.title} — MakerPerks`} description={d.intro} jsonLd={jsonLd}>
+  <article class="container detail">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <a href={`/for/${d.audience[0]}`}>{personaById(d.audience[0]).label}</a>
+      <span aria-hidden="true">/</span><span>{d.title}</span>
+    </nav>
+
+    <header class="detail__head">
+      <div class="detail__provider">{d.provider_slug}</div>
+      <h1 class="detail__title">{d.title}</h1>
+      <p class="detail__intro">{d.intro}</p>
+
+      <div class="meta">
+        <span class="meta__value tnum">{displayValue(d)}</span>
+        {d.aggregator && <span class="chip chip--gateway">Gateway</span>}
+        {
+          d.status !== "Active" && (
+            <span class="chip chip--warn">{d.status}</span>
+          )
+        }
+        {d.region !== "global" && <span class="chip">{d.region}</span>}
+        <span class="chip chip--quiet">
+          verified <time datetime={d.verified} class="tnum">{d.verified}</time>
+        </span>
+      </div>
+
+      <div class="who">
+        {
+          d.audience.map((a) => (
+            <a class="who__tag" href={`/for/${a}`}>
+              {personaById(a).label}
+            </a>
+          ))
+        }
+      </div>
+
+      <a class="btn btn--primary" href={d.url} rel="noopener" target="_blank">
+        Redeem on {d.provider_slug} ↗
+      </a>
+    </header>
+
+    <div class="detail__body">
+      <section class="prose">
+        <h2>About</h2>
+        <p>{d.description}</p>
+      </section>
+
+      {
+        d.aggregator && d.unlocks.length > 0 && (
+          <section class="unlocks">
+            <h2>Unlocks</h2>
+            <p class="unlocks__note">
+              Opening this gateway can cascade into credits from:
+            </p>
+            <ul class="unlocks__list">
+              {d.unlocks.map((u) => (
+                <li>{u}</li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        d.tiers.length > 0 && (
+          <section class="tiers">
+            <h2>Tiers</h2>
+            <div class="tiers__list">
+              {d.tiers.map((t) => (
+                <article class="tier">
+                  <div class="tier__head">
+                    <h3>{t.name}</h3>
+                    <span class="tier__value tnum">
+                      up to {t.max_value.toLocaleString("en-US")}
+                    </span>
+                  </div>
+                  <p class="tier__intro">{t.intro}</p>
+                  {t.benefits.length > 0 && (
+                    <ul class="tier__benefits">
+                      {t.benefits.map((b) => (
+                        <li>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {t.eligibility.length > 0 && (
+                    <div class="tier__elig">
+                      <span class="tier__label">Eligibility</span>
+                      <ul>
+                        {t.eligibility.map((e) => (
+                          <li>{e}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div class="tier__foot">
+                    {t.effort_level && (
+                      <span class="tier__effort">
+                        Effort: {effortWords[t.effort_level]}
+                      </span>
+                    )}
+                    {t.steps_to_apply.length > 0 && (
+                      <span class="tier__steps">
+                        {t.steps_to_apply.length} step
+                        {t.steps_to_apply.length === 1 ? "" : "s"} to apply
+                      </span>
+                    )}
+                  </div>
+                  {t.steps_to_apply.length > 0 && (
+                    <ol class="steps">
+                      {t.steps_to_apply.map((s) => (
+                        <li>
+                          <strong>{s.name}.</strong> {s.description}
+                          {s.action_url && (
+                            <>
+                              {" "}
+                              <a
+                                href={s.action_url}
+                                rel="noopener"
+                                target="_blank"
+                              >
+                                {s.action ?? "Open"} ↗
+                              </a>
+                            </>
+                          )}
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        d.faq.length > 0 && (
+          <section class="faq">
+            <h2>FAQ</h2>
+            {d.faq.map((f) => (
+              <details class="faq__item">
+                <summary>{f.question}</summary>
+                <p>{f.answer}</p>
+              </details>
+            ))}
+          </section>
+        )
+      }
+
+      <footer class="provenance">
+        <span class="provenance__label">Sources</span>
+        <span class="provenance__sources">{d.sources.join(" · ")}</span>
+        <p class="provenance__disclaimer">
+          Aggregated as published; verified {d.verified}. Always confirm the
+          current offer on the official page before applying.
+        </p>
+      </footer>
+    </div>
+  </article>
+
+  <style>
+    .detail {
+      padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem) 2rem;
+    }
+    .crumbs {
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      margin-bottom: 1.25rem;
+    }
+    .crumbs a {
+      color: var(--green-ink);
+      text-decoration: none;
+    }
+
+    .detail__head {
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .detail__provider {
+      color: var(--ink-muted);
+      font-size: var(--fs-sm);
+      text-transform: capitalize;
+    }
+    .detail__title {
+      font-size: var(--fs-display);
+      margin: 0.3rem 0 0;
+    }
+    .detail__intro {
+      margin: 0.75rem 0 1.1rem;
+      font-size: 1.12rem;
+      color: var(--ink-muted);
+      max-width: var(--measure);
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .meta__value {
+      font-size: 1.25rem;
+      font-weight: 680;
+      color: var(--green-ink);
+      margin-right: 0.25rem;
+    }
+    .chip {
+      font-size: var(--fs-xs);
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--hairline-strong);
+      color: var(--ink-muted);
+      background: var(--surface);
+    }
+    .chip--gateway {
+      color: var(--green-ink);
+      background: var(--green-tint);
+      border-color: color-mix(in oklch, var(--green) 40%, transparent);
+      font-weight: 560;
+    }
+    .chip--warn {
+      color: var(--amber-ink);
+      background: var(--amber-tint);
+      border-color: color-mix(in oklch, var(--amber-ink) 30%, transparent);
+    }
+    .chip--quiet {
+      background: transparent;
+      border-color: var(--hairline);
+    }
+    .who {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.4rem;
+    }
+    .who__tag {
+      font-size: var(--fs-xs);
+      text-decoration: none;
+      color: var(--ink-muted);
+      border: 1px solid var(--hairline);
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+    }
+    .who__tag:hover {
+      border-color: var(--green);
+      color: var(--ink);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-weight: 580;
+      font-size: var(--fs-sm);
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--r-sm);
+      text-decoration: none;
+      transition:
+        background 0.16s ease,
+        transform 0.16s ease;
+    }
+    .btn--primary {
+      background: var(--green);
+      color: white;
+    }
+    .btn--primary:hover {
+      background: var(--green-deep);
+      transform: translateY(-1px);
+    }
+
+    .detail__body {
+      display: grid;
+      gap: 2rem;
+      max-width: 56rem;
+      padding-top: 1.75rem;
+    }
+    .prose h2,
+    .tiers h2,
+    .faq h2,
+    .unlocks h2 {
+      font-size: var(--fs-h2);
+      margin-bottom: 0.6rem;
+    }
+    .prose p {
+      color: var(--ink);
+      max-width: var(--measure);
+    }
+
+    .unlocks__note {
+      color: var(--ink-muted);
+      margin: 0 0 0.6rem;
+    }
+    .unlocks__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .unlocks__list li {
+      font-size: var(--fs-sm);
+      text-transform: capitalize;
+      padding: 0.3rem 0.7rem;
+      border-radius: var(--r-sm);
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+    }
+
+    .tiers__list {
+      display: grid;
+      gap: 1rem;
+    }
+    .tier {
+      padding: 1.25rem 1.35rem;
+      border: 1px solid var(--hairline);
+      border-radius: var(--r-md);
+      background: var(--paper);
+    }
+    .tier__head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .tier__head h3 {
+      font-size: 1.15rem;
+    }
+    .tier__value {
+      color: var(--green-ink);
+      font-weight: 620;
+      white-space: nowrap;
+    }
+    .tier__intro {
+      color: var(--ink-muted);
+      margin: 0.4rem 0 0.8rem;
+    }
+    .tier__benefits,
+    .tier__elig ul {
+      margin: 0.3rem 0 0;
+      padding-left: 1.1rem;
+      font-size: var(--fs-sm);
+    }
+    .tier__benefits li,
+    .tier__elig li {
+      margin-bottom: 0.2rem;
+    }
+    .tier__label {
+      display: block;
+      margin-top: 0.8rem;
+      font-size: var(--fs-xs);
+      font-weight: 580;
+      color: var(--ink-muted);
+    }
+    .tier__foot {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.9rem;
+      padding-top: 0.7rem;
+      border-top: 1px solid var(--hairline);
+      font-size: var(--fs-xs);
+      color: var(--ink-muted);
+    }
+    .steps {
+      margin: 0.9rem 0 0;
+      padding-left: 1.2rem;
+      font-size: var(--fs-sm);
+      display: grid;
+      gap: 0.45rem;
+    }
+    .steps a {
+      color: var(--green-ink);
+    }
+
+    .faq__item {
+      border-bottom: 1px solid var(--hairline);
+      padding: 0.7rem 0;
+    }
+    .faq__item summary {
+      cursor: pointer;
+      font-weight: 560;
+    }
+    .faq__item p {
+      margin: 0.6rem 0 0.2rem;
+      color: var(--ink-muted);
+      max-width: var(--measure);
+    }
+
+    .provenance {
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      border-top: 1px solid var(--hairline);
+      padding-top: 1rem;
+    }
+    .provenance__label {
+      font-weight: 580;
+      color: var(--ink);
+      margin-right: 0.5rem;
+    }
+    .provenance__sources {
+      font-variant-numeric: tabular-nums;
+    }
+    .provenance__disclaimer {
+      margin: 0.5rem 0 0;
+      font-size: var(--fs-xs);
+    }
+  </style>
+</Base>

@@ -1,0 +1,55 @@
+draft: false
+provider_slug: you
+summary: "AI assistant for summarizing, transcribing, and converting video content"
+title: You.com Pro Plan Discount Offer via You.com Partnership
+meta_title: Six Months Discount on You.com Pro Plan
+intro: You.com, in partnership with TL;DR, offers six months of discounted
+  access to its AI-powered Pro Plan, delivering advanced summarization,
+  transcription, and content conversion tools to boost productivity.
+description: You.com provides an AI-powered Pro Plan designed to enhance
+  productivity by summarizing YouTube content, generating transcripts, and
+  converting videos into shareable formats. Through a limited-time promotional
+  partnership with You.com, new users can enjoy six months at a discounted rate,
+  saving $120 on subscription fees. The offer leverages advanced summarization,
+  multilingual support, and interactive AI tools to streamline content
+  workflows.
+status: Active
+tags:
+  - ai
+  - productivity
+  - llm
+  - agents
+url: https://you.com/tldr
+value_type: discount
+currency: USD
+max_value: 120
+community_notes: []
+tiers:
+  - name: Pro Plan Discount
+    intro: Receive six months of discounted access to TL;DR's AI-powered Pro Plan,
+      saving $120.
+    max_value: 120
+    url: https://you.com/tldr
+    benefits:
+      - Advanced Summarization
+      - Multilingual Transcription
+      - Content Conversion into Blogs and Social Media
+      - AI-Powered Interactive Tools
+    benefits_level: 1
+    duration:
+      - 6 months
+    eligibility:
+      - New users signing up through You.com partnership
+    effort_level: 1
+    steps_to_apply:
+      - name: Sign Up
+        description: Apply
+        action: Register
+        action_url: https://you.com/tldr
+faq: []
+audience:
+  - startup
+region: global
+sources:
+  - cloudcredits.io
+verified: 2025-10-20

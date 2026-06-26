@@ -1,0 +1,28 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: techsoup
+summary: "Donated and discounted software distribution for verified nonprofits"
+title: TechSoup
+intro: Donated and deeply discounted software for verified non-profits — the
+  non-profit gateway.
+description: TechSoup validates 501(c)(3) status and distributes donated or
+  low-cost software, hardware, and cloud services from major vendors (Microsoft,
+  Google, Adobe, Bitdefender, and more). It is the umbrella verifier most
+  non-profit tech perks route through.
+url: https://www.techsoup.org/
+value_type: free_tier
+max_value: 0
+tags:
+  - nonprofit
+audience:
+  - nonprofit
+aggregator: true
+unlocks:
+  - google
+  - microsoft
+  - atlassian
+sources:
+  - tresni-awesome-nonprofit
+  - cloudcommunity-free-for-nonprofits
+  - athman3-awesome-free-nonprofits

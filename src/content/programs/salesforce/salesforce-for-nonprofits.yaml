@@ -1,0 +1,19 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: salesforce
+summary: "Nonprofit CRM and constituent management on Salesforce's cloud platform"
+title: Salesforce for Nonprofits
+intro: 10 free Nonprofit Cloud CRM licenses plus discounts.
+description: Salesforce gives eligible non-profits 10 free Nonprofit Cloud CRM
+  subscriptions plus discounts on additional licenses and products.
+url: https://www.salesforce.org/nonprofit/
+value_type: free_tier
+max_value: 0
+tags:
+  - saas
+  - nonprofit
+audience:
+  - nonprofit
+sources:
+  - tresni-awesome-nonprofit

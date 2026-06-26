@@ -1,0 +1,24 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: mercury
+summary: "Business banking and financial services for startups"
+title: Mercury
+intro: Startup banking that unlocks GitHub, AWS, and partner perks.
+description: Mercury's business banking unlocks partner perks including a year
+  of free GitHub, AWS credits, and more — friendlier for pre-funded founders
+  with no minimum.
+url: https://mercury.com/
+value_type: credits
+currency: USD
+max_value: 0
+tags:
+  - fintech
+audience:
+  - startup
+aggregator: true
+unlocks:
+  - github
+  - aws
+sources:
+  - avinash201199-awesome-startup-credits

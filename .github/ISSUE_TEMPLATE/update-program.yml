@@ -1,0 +1,31 @@
+name: Update a program
+description: Report stale, wrong, or dead program data
+title: "[Update] <Provider> — <Program>"
+labels: ["data", "update-program"]
+body:
+  - type: input
+    id: program
+    attributes:
+      label: Which program?
+      placeholder: AWS Activate
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What's wrong?
+      options:
+        - Dead or redirected link
+        - Amount/value changed
+        - Eligibility changed
+        - Program discontinued
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      placeholder: What's the correct information, and where did you confirm it?
+    validations:
+      required: true

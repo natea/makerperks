@@ -1,0 +1,151 @@
+---
+import { displayValue, programPath, type Program } from "../lib/programs";
+
+interface Props {
+  program: Program;
+  /** Category tags drive the client-side filter on persona pages. */
+  filterable?: boolean;
+}
+const { program, filterable = false } = Astro.props;
+const d = program.data;
+const value = displayValue(d);
+const isDiscontinued = d.status === "Discontinued";
+const searchText =
+  `${d.title} ${d.provider_slug} ${d.tags.join(" ")}`.toLowerCase();
+---
+
+<article
+  class="card"
+  class:list={{ "card--gateway": d.aggregator, "card--off": isDiscontinued }}
+  data-tags={filterable ? d.tags.join(",") : undefined}
+  data-search={filterable ? searchText : undefined}
+  data-value={d.max_value}
+>
+  <a class="card__link" href={programPath(program)}>
+    <span class="visually-hidden">{d.title}</span>
+  </a>
+  <header class="card__head">
+    <div class="card__provider">{d.provider_slug}</div>
+    {d.aggregator && <span class="tag tag--gateway">Gateway</span>}
+    {isDiscontinued && <span class="tag tag--off">Discontinued</span>}
+    {d.region !== "global" && <span class="tag">{d.region}</span>}
+  </header>
+
+  <h3 class="card__title">{d.title}</h3>
+  <p class="card__intro">{d.intro}</p>
+
+  <footer class="card__foot">
+    <span class="card__value tnum">{value}</span>
+    <span class="card__verified">
+      verified <time datetime={d.verified} class="tnum">{d.verified}</time>
+    </span>
+  </footer>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.05rem 1.15rem 0.95rem;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-md);
+    transition:
+      border-color 0.16s ease,
+      transform 0.16s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .card:hover {
+    border-color: var(--hairline-strong);
+    transform: translateY(-2px);
+  }
+  /* Filtered-out cards (the persona page sets [hidden] via JS). Needs to live
+     in this component's scope to outweigh `.card { display: flex }`. */
+  .card[hidden] {
+    display: none;
+  }
+  .card:has(.card__link:focus-visible) {
+    outline: 2px solid var(--green);
+    outline-offset: 2px;
+  }
+  .card--gateway {
+    border-color: color-mix(in oklch, var(--green) 35%, var(--hairline));
+    background: linear-gradient(to bottom, var(--green-tint), var(--paper) 38%);
+  }
+  .card--off {
+    opacity: 0.62;
+  }
+  /* Full-card click target without nesting interactive elements. */
+  .card__link {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .card__head {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .card__provider {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.01em;
+    color: var(--ink-muted);
+    text-transform: capitalize;
+  }
+  .tag {
+    font-size: var(--fs-xs);
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    border: 1px solid var(--hairline-strong);
+    color: var(--ink-muted);
+    background: var(--surface);
+  }
+  .tag--gateway {
+    color: var(--green-ink);
+    border-color: color-mix(in oklch, var(--green) 40%, transparent);
+    background: var(--green-tint);
+    font-weight: 560;
+  }
+  .tag--off {
+    color: var(--amber-ink);
+    background: var(--amber-tint);
+    border-color: color-mix(in oklch, var(--amber-ink) 30%, transparent);
+  }
+
+  .card__title {
+    font-size: var(--fs-h3);
+    font-weight: 640;
+  }
+  .card__intro {
+    margin: 0;
+    color: var(--ink-muted);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card__foot {
+    margin-top: auto;
+    padding-top: 0.7rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border-top: 1px solid var(--hairline);
+  }
+  .card__value {
+    font-weight: 660;
+    color: var(--green-ink);
+    font-size: 1.02rem;
+  }
+  .card__verified {
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+  }
+</style>

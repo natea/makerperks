@@ -1,0 +1,20 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: upstash
+summary: "Serverless Redis and Kafka data platform for developers"
+title: Upstash for Open Source
+intro: $1,000/month credit grant for open-source projects.
+description: Upstash grants open-source projects a monthly credit toward its
+  serverless Redis and Kafka offerings.
+url: https://upstash.com/open-source
+value_type: credits
+currency: USD
+max_value: 1000
+tags:
+  - data
+  - oss
+audience:
+  - oss
+sources:
+  - awesome-builder-programs

@@ -1,0 +1,21 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: huggingface
+summary: "AI model hosting, Spaces, and inference endpoints for machine learning"
+title: Hugging Face for Startups
+intro: Discounted/credited compute, Spaces, and Inference Endpoints for startups.
+description: Hugging Face supports AI startups with infrastructure credits and
+  access to Spaces and Inference Endpoints. (The viral LinkedIn post linked
+  /enterprise; the correct program page is /startups.)
+url: https://huggingface.co/startups
+value_type: credits
+currency: USD
+max_value: 0
+tags:
+  - ai
+audience:
+  - startup
+sources:
+  - linkedin-800k
+  - awesome-builder-programs

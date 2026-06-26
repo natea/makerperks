@@ -1,0 +1,21 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: google
+summary: "Mentored open-source contribution program with stipends for new contributors"
+title: Google Summer of Code
+intro: Stipend and mentorship for students contributing to open source.
+description: Google Summer of Code pairs students and new contributors with
+  open-source organizations for a mentored, stipended contribution program.
+url: https://summerofcode.withgoogle.com/
+value_type: free_tier
+max_value: 0
+tags:
+  - learning
+  - oss
+  - students
+audience:
+  - student
+  - oss
+sources:
+  - awesome-builder-programs

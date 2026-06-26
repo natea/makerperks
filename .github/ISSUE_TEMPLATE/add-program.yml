@@ -1,0 +1,46 @@
+name: Add a program
+description: Suggest a builder perk to add to the directory
+title: "[Add] <Provider> — <Program>"
+labels: ["data", "add-program"]
+body:
+  - type: input
+    id: program
+    attributes:
+      label: Program name
+      placeholder: GitHub for Startups
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Official program URL (no affiliate/referral links)
+      placeholder: https://github.com/enterprise/startups
+    validations:
+      required: true
+  - type: checkboxes
+    id: audience
+    attributes:
+      label: Who is it for?
+      options:
+        - label: Startups
+        - label: Students
+        - label: Open-source maintainers
+        - label: Indie developers
+        - label: Ambassadors
+        - label: Non-profits
+  - type: input
+    id: value
+    attributes:
+      label: Value
+      placeholder: Up to $100,000 in credits / 50% off / free Pro tier
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This is a builder / dev-adjacent perk (not a consumer/lifestyle discount)
+          required: true
+        - label: The link is the official program page, with no affiliate or referral code
+          required: true

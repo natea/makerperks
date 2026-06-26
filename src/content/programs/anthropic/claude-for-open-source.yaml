@@ -1,0 +1,19 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: anthropic
+summary: "Claude AI assistant subscription for coding and writing"
+title: Claude for Open Source
+intro: Six months of Claude Max access for open-source maintainers.
+description: Anthropic offers open-source maintainers extended Claude Max access
+  to support their projects.
+url: https://claude.com/contact-sales/claude-for-oss
+value_type: free_tier
+max_value: 0
+tags:
+  - ai
+  - oss
+audience:
+  - oss
+sources:
+  - awesome-builder-programs

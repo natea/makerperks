@@ -1,0 +1,24 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: brex
+summary: "Business banking, corporate cards, and spend management for startups"
+title: Brex
+intro: Business account that unlocks AWS, OpenAI, and 100+ SaaS credits.
+description: Opening a Brex business account unlocks an extensive partner-perks
+  network — AWS and OpenAI credits plus discounts across 100+ SaaS tools. A
+  common first step for stacking startup credits.
+url: https://www.brex.com/
+value_type: credits
+currency: USD
+max_value: 0
+tags:
+  - fintech
+audience:
+  - startup
+aggregator: true
+unlocks:
+  - aws
+  - openai
+sources:
+  - avinash201199-awesome-startup-credits

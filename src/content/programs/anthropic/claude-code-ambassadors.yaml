@@ -1,0 +1,20 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: anthropic
+summary: "Claude AI agentic coding assistant for the terminal"
+title: Claude Code Ambassadors
+intro: API credits for community ambassadors.
+description: Anthropic's ambassador program provides API credits and community
+  support to developer advocates building with Claude Code.
+url: https://claude.com/community/ambassadors
+value_type: credits
+currency: USD
+max_value: 0
+tags:
+  - ai
+  - ambassador
+audience:
+  - ambassador
+sources:
+  - awesome-builder-programs

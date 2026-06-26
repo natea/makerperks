@@ -1,0 +1,22 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: microsoft
+summary: "Azure cloud computing and Microsoft 365 productivity software for nonprofits"
+title: Microsoft for Nonprofits
+intro: $2,000/yr Azure credits plus discounted Microsoft 365 for non-profits.
+description: Microsoft for Nonprofits provides eligible organizations with
+  annual Azure credits, discounted Microsoft 365, and onboarding support via a
+  nonprofit concierge.
+url: https://www.microsoft.com/en-us/nonprofits/offers-for-nonprofits
+value_type: credits
+currency: USD
+max_value: 2000
+tags:
+  - cloud
+  - nonprofit
+audience:
+  - nonprofit
+sources:
+  - tresni-awesome-nonprofit
+  - cloudcommunity-free-for-nonprofits

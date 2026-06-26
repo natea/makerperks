@@ -1,0 +1,21 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: anthropic
+summary: "AI models and the Claude API for building applications"
+title: Anthropic Startup Program
+intro: Up to ~$25,000 in Claude API credits for AI startups.
+description: The Anthropic Startup Program provides Claude API credits, priority
+  rate limits, and early model access to qualifying AI startups, typically those
+  backed by Anthropic's VC partners.
+url: https://claude.com/programs/startups
+value_type: credits
+currency: USD
+max_value: 25000
+tags:
+  - ai
+audience:
+  - startup
+sources:
+  - linkedin-800k
+  - awesome-builder-programs

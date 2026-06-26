@@ -1,0 +1,21 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: figma
+summary: "Collaborative interface design and prototyping tool"
+title: Figma for Education
+intro: Free Figma Professional plan for verified students and educators.
+description: Figma for Education gives verified students and teachers the
+  Professional plan for free, including unlimited projects, version history, and
+  team libraries.
+url: https://www.figma.com/education/
+value_type: free_tier
+max_value: 144
+tags:
+  - design
+  - students
+audience:
+  - student
+sources:
+  - awesome-builder-programs
+  - awesome-student-developer-deals

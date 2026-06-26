@@ -1,0 +1,19 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: zed
+summary: "Collaborative code editor built for speed and performance"
+title: Zed Student Plan
+intro: All Zed Pro features free for 12 months for students.
+description: Zed's student plan unlocks every Zed Pro feature free for 12 months
+  for verified students.
+url: https://zed.dev/education
+value_type: free_tier
+max_value: 0
+tags:
+  - dev tools
+  - students
+audience:
+  - student
+sources:
+  - awesome-builder-programs

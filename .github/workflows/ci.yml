@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # Full history so build-time git-date derivation (added/updated) is correct.
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Validate program data (schema + scope rules)
+        run: bun run validate:data
+      - name: Type-check content + components
+        run: bun run check
+      - name: Build site (and agent layer)
+        run: bun run build

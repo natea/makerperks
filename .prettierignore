@@ -1,0 +1,9 @@
+dist/
+.astro/
+node_modules/
+bun.lock
+bun.lockb
+src/content/programs/
+src/content/providers/
+openspec/
+*.log

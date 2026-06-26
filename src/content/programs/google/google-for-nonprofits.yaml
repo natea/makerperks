@@ -1,0 +1,22 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: google
+summary: "Workspace, Ad Grants, and Cloud productivity tools for nonprofit organizations"
+title: Google for Nonprofits
+intro: Free Google Workspace, $10K/mo Ad Grants, and Cloud credits for non-profits.
+description: Google for Nonprofits gives eligible 501(c)(3) organizations free
+  Google Workspace, up to $10,000/month in Google Ad Grants, YouTube nonprofit
+  features, and Cloud credits.
+url: https://www.google.com/nonprofits/
+value_type: credits
+currency: USD
+max_value: 120000
+tags:
+  - productivity
+  - nonprofit
+audience:
+  - nonprofit
+sources:
+  - tresni-awesome-nonprofit
+  - cloudcommunity-free-for-nonprofits

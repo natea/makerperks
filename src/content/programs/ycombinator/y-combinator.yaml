@@ -1,0 +1,27 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: ycombinator
+summary: "Startup accelerator providing funding, mentorship, and partner deals"
+title: Y Combinator
+intro: Accelerator that unlocks $1M+ in combined partner deals.
+description: Joining Y Combinator unlocks the highest credit tiers across cloud
+  and SaaS providers — over $1M in combined partner deals — plus funding and
+  network.
+url: https://www.ycombinator.com/
+value_type: credits
+currency: USD
+max_value: 500000
+tags:
+  - accelerator
+audience:
+  - startup
+aggregator: true
+unlocks:
+  - aws
+  - azure
+  - gcp
+  - openai
+sources:
+  - awesome-builder-programs
+  - avinash201199-awesome-startup-credits

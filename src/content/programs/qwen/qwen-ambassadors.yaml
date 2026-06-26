@@ -1,0 +1,20 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: qwen
+summary: "Large language models and AI APIs from Alibaba's Qwen family"
+title: Qwen Ambassadors
+intro: API credits for Qwen community ambassadors.
+description: Alibaba's Qwen ambassador program offers API credits to developer
+  advocates building with Qwen models.
+url: https://qwen.ai/ambassador
+value_type: credits
+currency: USD
+max_value: 0
+tags:
+  - ai
+  - ambassador
+audience:
+  - ambassador
+sources:
+  - awesome-builder-programs

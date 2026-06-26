@@ -1,0 +1,29 @@
+region: global
+verified: 2026-06-25
+status: Active
+provider_slug: github
+summary: "Bundle of free developer tools, cloud credits, and domains for students"
+title: GitHub Student Developer Pack
+intro: Free access to 100+ developer tools, cloud credits, and domains for
+  verified students.
+description: The GitHub Student Developer Pack bundles free and discounted
+  access to dozens of developer tools — GitHub Pro, cloud credits, domains,
+  IDEs, and more — for students verified via SheerID or a school email. It is
+  the single highest-leverage starting point for student builders.
+url: https://education.github.com/pack
+value_type: free_tier
+max_value: 200
+tags:
+  - dev tools
+  - students
+audience:
+  - student
+aggregator: true
+unlocks:
+  - digitalocean
+  - mongodb
+  - namecheap
+  - heroku
+sources:
+  - awesome-builder-programs
+  - awesome-student-developer-deals

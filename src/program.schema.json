@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://makerperks.com/program.schema.json",
+  "title": "Program",
+  "description": "A builder-perk program (credits, discount, or free tier) for one or more audiences. Base fields ported from cloudcredits.io (MIT); MakerPerks extends with audience, region, aggregator, unlocks, sources, and verified.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "draft": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, the entry is not yet published (excluded from build output and agent layer)."
+    },
+    "provider_slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Short lowercase slug for the program's provider, e.g. aws, digitalocean."
+    },
+    "title": {
+      "type": "string",
+      "description": "The official name or title of the program."
+    },
+    "meta_title": {
+      "type": "string",
+      "description": "Optional meta title for SEO/marketing."
+    },
+    "intro": {
+      "type": "string",
+      "description": "Concise summary highlighting the main offer and value."
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description: purpose, benefits, scope."
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Neutral, noun-first one-liner stating what the software/service is or provides (not a pitch, no dollar figures). Shown on cards in place of intro."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Active", "Discontinued", "Beta", "Upcoming"],
+      "default": "Active",
+      "description": "Lifecycle status of the program."
+    },
+    "tags": {
+      "type": "array",
+      "description": "Up to five category/keyword tags (e.g. cloud, ai, dev tools). Builder/dev-adjacent scope only.",
+      "maxItems": 5,
+      "default": [],
+      "items": { "type": "string" }
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Primary URL to learn more about or apply to the program (the redeem link)."
+    },
+    "value_type": {
+      "type": "string",
+      "enum": ["credits", "discount", "free_tier"],
+      "default": "credits",
+      "description": "Whether the program provides monetary credits, a percentage discount, or a free tier."
+    },
+    "currency": {
+      "type": "string",
+      "enum": ["USD", "EUR", "GBP"],
+      "default": "USD",
+      "description": "Currency code for monetary credits/discounts."
+    },
+    "min_value": {
+      "type": "number",
+      "description": "Optional minimum credits or discount level."
+    },
+    "max_value": {
+      "type": "number",
+      "description": "Maximum credits or discount value available."
+    },
+    "community_notes": {
+      "type": "array",
+      "maxItems": 3,
+      "default": [],
+      "description": "Up to three community-provided notes or references.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "body": { "type": "string" },
+          "source_url": { "type": "string", "format": "uri" }
+        },
+        "required": ["title", "body", "source_url"]
+      }
+    },
+    "tiers": {
+      "type": "array",
+      "default": [],
+      "description": "Program tiers, each with its own value, eligibility, and steps to apply.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "intro": { "type": "string" },
+          "max_value": { "type": "number" },
+          "url": { "type": "string", "format": "uri" },
+          "benefits": {
+            "type": "array",
+            "maxItems": 5,
+            "default": [],
+            "items": { "type": "string" }
+          },
+          "benefits_level": { "type": "number", "minimum": 1, "maximum": 4 },
+          "duration": {
+            "type": "array",
+            "maxItems": 5,
+            "default": [],
+            "items": { "type": "string" }
+          },
+          "eligibility": {
+            "type": "array",
+            "maxItems": 5,
+            "default": [],
+            "items": { "type": "string" }
+          },
+          "effort_level": { "type": "number", "minimum": 1, "maximum": 4 },
+          "steps_to_apply": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": { "type": "string" },
+                "description": { "type": "string" },
+                "action": { "type": "string" },
+                "action_url": { "type": "string", "format": "uri" }
+              },
+              "required": ["name", "description"]
+            }
+          }
+        },
+        "required": [
+          "name",
+          "intro",
+          "max_value",
+          "url",
+          "benefits_level",
+          "effort_level"
+        ]
+      }
+    },
+    "faq": {
+      "type": "array",
+      "default": [],
+      "description": "Frequently asked questions with answers.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "question": { "type": "string" },
+          "answer": { "type": "string" }
+        },
+        "required": ["question", "answer"]
+      }
+    },
+
+    "audience": {
+      "type": "array",
+      "description": "MakerPerks extension. Which builder personas this program serves (multi-valued). The persona axis that drives navigation.",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "startup",
+          "student",
+          "oss",
+          "indie",
+          "ambassador",
+          "nonprofit"
+        ]
+      }
+    },
+    "region": {
+      "type": "string",
+      "default": "global",
+      "description": "MakerPerks extension. Region availability. 'global' or an ISO-like code (e.g. US, EU, IN, GB).",
+      "examples": ["global", "US", "EU", "IN", "GB"]
+    },
+    "aggregator": {
+      "type": "boolean",
+      "default": false,
+      "description": "MakerPerks extension. True for umbrella gateways that unlock a cascade of downstream programs (e.g. Brex, Ramp, Mercury, Stripe Atlas, TechSoup, GitHub Student Pack, Y Combinator)."
+    },
+    "unlocks": {
+      "type": "array",
+      "default": [],
+      "uniqueItems": true,
+      "description": "MakerPerks extension. provider_slugs of downstream programs this aggregator grants access to.",
+      "items": { "type": "string", "pattern": "^[a-z0-9-]+$" }
+    },
+    "sources": {
+      "type": "array",
+      "description": "MakerPerks extension. Provenance: source ids that contributed this record.",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "cloudcredits.io",
+          "linkedin-800k",
+          "awesome-builder-programs",
+          "awesome-student-developer-deals",
+          "dakshshah96-awesome-startup-credits",
+          "avinash201199-awesome-startup-credits",
+          "cloudcommunity-free-for-nonprofits",
+          "tresni-awesome-nonprofit",
+          "dobroslav-awesome-startup-deals",
+          "athman3-awesome-free-nonprofits",
+          "makerperks"
+        ]
+      }
+    },
+    "verified": {
+      "type": "string",
+      "format": "date",
+      "description": "MakerPerks extension. Date the data was last verified, in YYYY-MM-DD. For imported entries this is the source's last-updated date, never a fabricated fresh date."
+    }
+  },
+  "required": [
+    "provider_slug",
+    "title",
+    "intro",
+    "description",
+    "url",
+    "max_value",
+    "audience",
+    "sources",
+    "verified"
+  ]
+}
