@@ -31,6 +31,11 @@
 - [x] 4.5 Report providers with no logo hit so the placeholder set is known (0 misses this run)
 
 ## 5. Browse UI — via `/impeccable`
+> DEFERRED: the `impeccable` plugin (v3.8.0) is installed but was added after this
+> session started, so `/impeccable` isn't loadable here. Per CLAUDE.md these surfaces
+> must go through it — resume in a fresh session. All data/build inputs they need are
+> ready: `program.data.summary`, `public/logos/<slug>.png` + `src/data/logo-manifest.json`,
+> and `getRecordDates(programs)` from `src/lib/recordDates.ts`.
 - [ ] 5.0 Build every surface in this section through the impeccable skill; browser-verify
 - [ ] 5.1 Card: render the provider logo (uniform square) next to the provider/title; monogram placeholder on miss
 - [ ] 5.2 Card: show `summary` as the body line (fallback to truncated `intro` if absent)
