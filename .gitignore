@@ -27,3 +27,9 @@ pnpm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# impeccable design-hook cache (generated)
+.impeccable/
+
+# Playwright
+.playwright-mcp/

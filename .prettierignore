@@ -6,4 +6,5 @@ bun.lockb
 src/content/programs/
 src/content/providers/
 openspec/
+.impeccable/
 *.log
