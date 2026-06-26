@@ -69,7 +69,6 @@ faq:
       upon request.
 audience:
   - startup
-  - student
 region: global
 sources:
   - cloudcredits.io

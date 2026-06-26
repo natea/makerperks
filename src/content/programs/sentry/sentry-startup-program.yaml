@@ -71,7 +71,6 @@ faq:
       selecting 'Startup' as the company type at the provided URL.
 audience:
   - startup
-  - oss
 region: global
 sources:
   - cloudcredits.io

@@ -85,7 +85,6 @@ faq:
     answer: Applications typically process within 2-3 business days.
 audience:
   - startup
-  - student
 region: global
 sources:
   - cloudcredits.io

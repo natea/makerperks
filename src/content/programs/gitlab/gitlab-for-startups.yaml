@@ -90,8 +90,6 @@ faq:
       GitLab will prepare an add-on quote.
 audience:
   - startup
-  - student
-  - oss
 region: global
 sources:
   - cloudcredits.io

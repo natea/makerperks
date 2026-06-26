@@ -82,7 +82,6 @@ faq:
       reporting, and watch for email notifications as credits deplete.
 audience:
   - startup
-  - student
 region: global
 sources:
   - cloudcredits.io

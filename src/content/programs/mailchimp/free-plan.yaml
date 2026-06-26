@@ -72,7 +72,6 @@ faq:
       upgrade.
 audience:
   - startup
-  - nonprofit
 region: global
 sources:
   - cloudcredits.io

@@ -102,7 +102,6 @@ faq:
       with a MongoDB expert.
 audience:
   - startup
-  - student
 region: global
 sources:
   - cloudcredits.io

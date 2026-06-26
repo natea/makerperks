@@ -98,7 +98,6 @@ faq:
       check your inbox for account activation.
 audience:
   - startup
-  - oss
 region: global
 sources:
   - cloudcredits.io

@@ -25,6 +25,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse, stringify } from "yaml";
 import { MERGES, ADDITIONS } from "./data/reconciliation.mjs";
+import { audienceCorroborated } from "./data/audience-rules.mjs";
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
 const programsDir = join(repoRoot, "src/content/programs");
@@ -74,7 +75,16 @@ for (const m of MERGES) {
     continue;
   }
   const d = match.data;
-  d.audience = uniq([...(d.audience ?? []), ...(m.audience ?? [])]);
+  // Audience is NOT inferred from source-list membership. A source can contribute a
+  // candidate persona, but it is added only when the program's OWN text corroborates
+  // an offering for it (see scripts/data/audience-rules.mjs). Audiences the record
+  // already carries are always kept; uncorroborated candidates from the source are
+  // dropped. This is what prevents a startup-only program that merely appeared in a
+  // nonprofit/student/oss source from inheriting that persona.
+  const candidates = uniq([...(d.audience ?? []), ...(m.audience ?? [])]);
+  d.audience = candidates.filter(
+    (a) => (d.audience ?? []).includes(a) || audienceCorroborated(d, a),
+  );
   d.sources = uniq([...(d.sources ?? []), ...(m.sources ?? [])]);
   if (m.region && (!d.region || d.region === "global")) d.region = m.region;
   if (m.aggregator) {

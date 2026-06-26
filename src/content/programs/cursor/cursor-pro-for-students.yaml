@@ -80,7 +80,6 @@ faq:
   - question: Where can I ask more questions?
     answer: Email hi@cursor.com for any additional inquiries about the student program.
 audience:
-  - startup
   - student
 region: global
 sources:

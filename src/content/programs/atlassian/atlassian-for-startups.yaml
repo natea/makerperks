@@ -75,7 +75,6 @@ faq:
       pricing, or switch to a lower-tier free plan.
 audience:
   - startup
-  - nonprofit
 region: global
 sources:
   - cloudcredits.io
