@@ -5,7 +5,7 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build
 export default defineConfig({
-  site: "https://makerperks.com",
+  site: "https://www.makerperks.com",
   trailingSlash: "ignore",
 
   build: {
