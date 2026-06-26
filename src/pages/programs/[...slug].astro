@@ -7,6 +7,7 @@ import {
 } from "../../lib/programs";
 import { personaById } from "../../lib/personas";
 import { programJsonLd } from "../../lib/jsonld";
+import logoManifest from "../../data/logo-manifest.json";
 
 export async function getStaticPaths() {
   const programs = await getPublishedPrograms();
@@ -25,21 +26,46 @@ const site = (Astro.site?.toString() ?? "https://makerperks.com").replace(
 const jsonLd = programJsonLd(program, site + "/programs/" + program.id);
 
 const effortWords = ["", "Very low", "Low", "Moderate", "High"];
+const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
 ---
 
-<Base title={`${d.title} — MakerPerks`} description={d.intro} jsonLd={jsonLd}>
+<Base
+  title={`${d.title} — MakerPerks`}
+  description={d.intro}
+  jsonLd={jsonLd}
+  image={`/og/${program.id}.png`}
+>
   <article class="container detail">
     <nav class="crumbs" aria-label="Breadcrumb">
       <a href="/">Home</a>
       <span aria-hidden="true">/</span>
       <a href={`/for/${d.audience[0]}`}>{personaById(d.audience[0]).label}</a>
-      <span aria-hidden="true">/</span><span>{d.title}</span>
+      <span aria-hidden="true">/</span>
+      <span>{d.title}</span>
     </nav>
 
     <header class="detail__head">
-      <div class="detail__provider">{d.provider_slug}</div>
+      <div class="detail__brand">
+        {
+          hasLogo ? (
+            <img
+              class="detail__logo"
+              src={`/logos/${d.provider_slug}.png`}
+              alt=""
+              width="44"
+              height="44"
+              decoding="async"
+            />
+          ) : (
+            <span class="detail__logo detail__logo--mono" aria-hidden="true">
+              {d.provider_slug.charAt(0)}
+            </span>
+          )
+        }
+        <span class="detail__provider">{d.provider_slug}</span>
+      </div>
       <h1 class="detail__title">{d.title}</h1>
-      <p class="detail__intro">{d.intro}</p>
+      <p class="detail__intro">{d.summary ?? d.intro}</p>
 
       <div class="meta">
         <span class="meta__value tnum">{displayValue(d)}</span>
@@ -207,6 +233,32 @@ const effortWords = ["", "Very low", "Low", "Moderate", "High"];
       padding-bottom: 1.5rem;
       border-bottom: 1px solid var(--hairline);
     }
+    .detail__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .detail__logo {
+      flex: none;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--hairline);
+      background: var(--paper);
+      object-fit: contain;
+      padding: 4px;
+    }
+    .detail__logo--mono {
+      display: grid;
+      place-items: center;
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      background: var(--surface);
+      padding: 0;
+    }
     .detail__provider {
       color: var(--ink-muted);
       font-size: var(--fs-sm);
@@ -214,7 +266,7 @@ const effortWords = ["", "Very low", "Low", "Moderate", "High"];
     }
     .detail__title {
       font-size: var(--fs-display);
-      margin: 0.3rem 0 0;
+      margin: 0.5rem 0 0;
     }
     .detail__intro {
       margin: 0.75rem 0 1.1rem;

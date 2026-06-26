@@ -1,15 +1,21 @@
 ---
 import { displayValue, programPath, type Program } from "../lib/programs";
+import logoManifest from "../data/logo-manifest.json";
 
 interface Props {
   program: Program;
-  /** Category tags drive the client-side filter on persona pages. */
+  /** Category tags + sort data drive the client-side filter/sort on persona pages. */
   filterable?: boolean;
+  /** Build-derived dates (from getRecordDates) that back the date sorts. */
+  added?: string;
+  updated?: string;
 }
-const { program, filterable = false } = Astro.props;
+const { program, filterable = false, added, updated } = Astro.props;
 const d = program.data;
 const value = displayValue(d);
 const isDiscontinued = d.status === "Discontinued";
+// Logo committed at build time (Decision 3); fall back to a monogram on a miss.
+const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
 const searchText =
   `${d.title} ${d.provider_slug} ${d.tags.join(" ")}`.toLowerCase();
 ---
@@ -20,19 +26,43 @@ const searchText =
   data-tags={filterable ? d.tags.join(",") : undefined}
   data-search={filterable ? searchText : undefined}
   data-value={d.max_value}
+  data-title={filterable ? d.title.toLowerCase() : undefined}
+  data-added={filterable ? added : undefined}
+  data-updated={filterable ? updated : undefined}
 >
   <a class="card__link" href={programPath(program)}>
     <span class="visually-hidden">{d.title}</span>
   </a>
   <header class="card__head">
-    <div class="card__provider">{d.provider_slug}</div>
-    {d.aggregator && <span class="tag tag--gateway">Gateway</span>}
-    {isDiscontinued && <span class="tag tag--off">Discontinued</span>}
-    {d.region !== "global" && <span class="tag">{d.region}</span>}
+    <div class="card__identity">
+      {
+        hasLogo ? (
+          <img
+            class="card__logo"
+            src={`/logos/${d.provider_slug}.png`}
+            alt=""
+            width="40"
+            height="40"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <span class="card__logo card__logo--mono" aria-hidden="true">
+            {d.provider_slug.charAt(0)}
+          </span>
+        )
+      }
+      <span class="card__provider">{d.provider_slug}</span>
+    </div>
+    <div class="card__flags">
+      {d.aggregator && <span class="tag tag--gateway">Gateway</span>}
+      {isDiscontinued && <span class="tag tag--off">Discontinued</span>}
+      {d.region !== "global" && <span class="tag">{d.region}</span>}
+    </div>
   </header>
 
   <h3 class="card__title">{d.title}</h3>
-  <p class="card__intro">{d.intro}</p>
+  <p class="card__intro">{d.summary ?? d.intro}</p>
 
   <footer class="card__foot">
     <span class="card__value tnum">{value}</span>
@@ -86,14 +116,52 @@ const searchText =
   .card__head {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    justify-content: space-between;
+    gap: 0.5rem;
     flex-wrap: wrap;
+  }
+  .card__identity {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+  }
+  /* Uniform square so cards align regardless of source aspect ratio. */
+  .card__logo {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+    object-fit: contain;
+    padding: 3px;
+  }
+  .card__logo--mono {
+    display: grid;
+    place-items: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    background: var(--surface);
+    padding: 0;
   }
   .card__provider {
     font-size: var(--fs-xs);
     letter-spacing: 0.01em;
     color: var(--ink-muted);
     text-transform: capitalize;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .card__flags {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
   .tag {
     font-size: var(--fs-xs);

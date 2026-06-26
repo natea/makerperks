@@ -1,6 +1,5 @@
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import type { Program } from "./programs";
 
@@ -20,7 +19,10 @@ export interface RecordDate {
   fallback: boolean;
 }
 
-const root = fileURLToPath(new URL("../..", import.meta.url));
+// Project root. Anchored on the working directory (where `astro dev`/`build` run)
+// rather than `import.meta.url`, which Vite's SSR bundling rewrites — that made
+// every file lookup miss and silently fall back to the verified date.
+const root = process.cwd();
 
 /** Resolve the YAML path for a program entry id (`<provider>/<file>`). */
 function programFile(id: string): string | null {
