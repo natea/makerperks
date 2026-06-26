@@ -1,0 +1,103 @@
+---
+// NOTE: Starter content. This is a good-faith starting point, not legal advice —
+// the owner / counsel should review and finalize before relying on it.
+import Base from "../layouts/Base.astro";
+
+const updated = "2026-06-26";
+---
+
+<Base
+  title="Privacy Policy — MakerPerks"
+  description="How MakerPerks handles data: cookieless analytics, no personal data, no ads or affiliate tracking."
+>
+  <article class="container legal">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <span>Privacy Policy</span>
+    </nav>
+    <h1 class="legal__title">Privacy Policy</h1>
+    <p class="legal__updated tnum">Last updated {updated}</p>
+
+    <section class="prose">
+      <p>
+        MakerPerks is a static, browseable directory of builder perks. We aim to
+        collect as little as possible, and never to sell or share your data.
+      </p>
+
+      <h2>What we collect</h2>
+      <p>
+        We use <a href="https://umami.is/" rel="noopener" target="_blank"
+          >Umami</a
+        >, a privacy-friendly analytics tool, to understand which pages and
+        personas are useful. Umami is <strong>cookieless</strong> and does not collect
+        personal data or build advertising profiles. It records aggregate, anonymized
+        signals such as page views, referrers, and approximate region — never your
+        name, email, or a cross-site identifier.
+      </p>
+
+      <h2>What we do not do</h2>
+      <ul>
+        <li>No advertising or marketing trackers.</li>
+        <li>No affiliate links or referral codes.</li>
+        <li>No accounts, sign-ups, or stored personal information.</li>
+        <li>No selling or sharing of data with third parties.</li>
+      </ul>
+
+      <h2>Links to other sites</h2>
+      <p>
+        Program listings link to third-party provider websites. Once you follow
+        a link, that provider's own privacy policy applies; we have no control
+        over their practices.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this policy? Reach us through the
+        <a href="/#personas">site</a> or the project's GitHub repository.
+      </p>
+    </section>
+  </article>
+
+  <style>
+    .legal {
+      padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem) 3rem;
+    }
+    .crumbs {
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      margin-bottom: 1.25rem;
+    }
+    .crumbs a {
+      color: var(--green-ink);
+      text-decoration: none;
+    }
+    .legal__title {
+      font-size: var(--fs-display);
+    }
+    .legal__updated {
+      margin: 0.5rem 0 0;
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+    }
+    .prose {
+      margin-top: 2rem;
+      max-width: var(--measure);
+      display: grid;
+      gap: 0.9rem;
+    }
+    .prose h2 {
+      font-size: var(--fs-h2);
+      margin-top: 1rem;
+    }
+    .prose a {
+      color: var(--green-ink);
+    }
+    .prose ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      display: grid;
+      gap: 0.3rem;
+    }
+  </style>
+</Base>

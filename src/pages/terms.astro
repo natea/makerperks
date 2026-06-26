@@ -1,0 +1,97 @@
+---
+// NOTE: Starter content. This is a good-faith starting point, not legal advice —
+// the owner / counsel should review and finalize before relying on it.
+import Base from "../layouts/Base.astro";
+
+const updated = "2026-06-26";
+---
+
+<Base
+  title="Terms of Use — MakerPerks"
+  description="Terms for using MakerPerks: listings are aggregated third-party offers provided as-is; always confirm on the provider's official page."
+>
+  <article class="container legal">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <span>Terms of Use</span>
+    </nav>
+    <h1 class="legal__title">Terms of Use</h1>
+    <p class="legal__updated tnum">Last updated {updated}</p>
+
+    <section class="prose">
+      <p>
+        MakerPerks is a free, community-maintained directory. By using the site
+        you agree to these terms.
+      </p>
+
+      <h2>Listings are third-party offers</h2>
+      <p>
+        Every program listed is operated by an independent third-party provider,
+        not by MakerPerks. We aggregate publicly available information and a
+        community-set verified date, but offers change often. <strong
+          >Always confirm the current terms, eligibility, and value on the
+          provider's official page</strong
+        > before applying or relying on a perk.
+      </p>
+
+      <h2>No warranty</h2>
+      <p>
+        The directory is provided "as is," without warranty of any kind. We do
+        not guarantee that any listing is accurate, current, or that you will
+        qualify for or receive any offer. MakerPerks is not liable for decisions
+        made based on the information here.
+      </p>
+
+      <h2>No affiliation or endorsement</h2>
+      <p>
+        Provider names and logos are used nominatively to identify each program.
+        Their appearance does not imply partnership, sponsorship, or endorsement
+        in either direction. We carry no ads and no affiliate links.
+      </p>
+
+      <h2>Contributions</h2>
+      <p>
+        Corrections and additions are welcome by pull request or issue;
+        submitted content should be accurate and verifiable on the provider's
+        official page.
+      </p>
+    </section>
+  </article>
+
+  <style>
+    .legal {
+      padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem) 3rem;
+    }
+    .crumbs {
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      margin-bottom: 1.25rem;
+    }
+    .crumbs a {
+      color: var(--green-ink);
+      text-decoration: none;
+    }
+    .legal__title {
+      font-size: var(--fs-display);
+    }
+    .legal__updated {
+      margin: 0.5rem 0 0;
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+    }
+    .prose {
+      margin-top: 2rem;
+      max-width: var(--measure);
+      display: grid;
+      gap: 0.9rem;
+    }
+    .prose h2 {
+      font-size: var(--fs-h2);
+      margin-top: 1rem;
+    }
+    .prose a {
+      color: var(--green-ink);
+    }
+  </style>
+</Base>

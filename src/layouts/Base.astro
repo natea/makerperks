@@ -1,17 +1,41 @@
 ---
 import "../styles/global.css";
+import SearchPalette from "../components/SearchPalette.astro";
 
 interface Props {
   title: string;
   description?: string;
   jsonLd?: unknown;
+  /** Share image path (defaults to the branded card); resolved absolute below. */
+  image?: string;
+  /** Canonical path (defaults to the current URL). */
+  canonical?: string;
 }
 const {
   title,
   description = "A browseable, agent-friendly directory of builder perks — free credits, discounts, and programs for startups, students, OSS maintainers, indie devs, and non-profits.",
   jsonLd,
+  image = "/og-default.png",
+  canonical,
 } = Astro.props;
 const year = 2026;
+
+// Social scrapers need absolute URLs. Resolve image + canonical against the site.
+const canonicalUrl = new URL(canonical ?? Astro.url.pathname, Astro.site).href;
+const imageUrl = new URL(image, Astro.site).href;
+
+// Umami analytics (cookieless, no PII, no consent banner). Defaults to the production
+// website ID. Override per environment with PUBLIC_UMAMI_WEBSITE_ID (set it empty to
+// disable), and point at a self-hosted instance with PUBLIC_UMAMI_SRC.
+const UMAMI_ID =
+  import.meta.env.PUBLIC_UMAMI_WEBSITE_ID ??
+  "fd170bfe-3e87-4a05-8658-a8b8a19311ca";
+const UMAMI_SRC =
+  import.meta.env.PUBLIC_UMAMI_SRC ?? "https://cloud.umami.is/script.js";
+
+// Feedback form (Google Forms) — the MakerPerks Feedback form.
+const FEEDBACK_FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdA8YgP3sRoVlak0TKQGFUe13TkMgIywU4KSFbGwfK0wfg0NQ/viewform";
 ---
 
 <!doctype html>
@@ -21,6 +45,22 @@ const year = 2026;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    {/* Open Graph + Twitter Card — rich link previews */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MakerPerks" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
     <link
@@ -34,6 +74,7 @@ const year = 2026;
         <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
       )
     }
+    {UMAMI_ID && <script defer src={UMAMI_SRC} data-website-id={UMAMI_ID} />}
   </head>
   <body>
     <a href="#main" class="skip">Skip to content</a>
@@ -44,6 +85,29 @@ const year = 2026;
           <span class="brand__name">MakerPerks</span>
         </a>
         <nav class="site-nav" aria-label="Primary">
+          <button
+            type="button"
+            class="site-search"
+            data-search-open
+            aria-label="Search programs"
+            aria-keyshortcuts="Meta+K Control+K"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span class="site-search__label">Search</span>
+            <kbd class="site-search__kbd" aria-hidden="true">⌘K</kbd>
+          </button>
           <a href="/#personas">Browse</a>
           <a href="/llms.txt">For agents</a>
           <a
@@ -59,16 +123,25 @@ const year = 2026;
       <slot />
     </main>
 
+    <SearchPalette />
+
     <footer class="site-foot">
       <div class="container site-foot__inner">
-        <p>
-          <strong>MakerPerks</strong> — builder perks worth claiming. No ads, no affiliate
-          links.
+        <p class="site-foot__tagline">
+          <strong>MakerPerks</strong> &mdash; builder perks worth claiming. No ads,
+          no affiliate links.
         </p>
+        <nav class="site-foot__links" aria-label="Footer">
+          <a href={FEEDBACK_FORM_URL} target="_blank" rel="noopener">Feedback</a
+          >
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Use</a>
+          <a href="/perks.json">perks.json</a>
+          <a href="/llms.txt">llms.txt</a>
+        </nav>
         <p class="site-foot__meta">
-          Data via <a href="/perks.json">perks.json</a> ·
-          <a href="/llms.txt">llms.txt</a> · Always confirm the current offer on the
-          provider's page. © {year}
+          Always confirm the current offer on the provider's page. &copy; {year}
+          Jazkarta, Inc.
         </p>
       </div>
     </footer>
@@ -125,6 +198,46 @@ const year = 2026;
         gap: clamp(0.75rem, 2vw, 1.5rem);
         font-size: var(--fs-sm);
       }
+      .site-search {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font: inherit;
+        font-size: var(--fs-sm);
+        color: var(--ink-muted);
+        background: var(--paper);
+        border: 1px solid var(--hairline-strong);
+        border-radius: var(--r-sm);
+        padding: 0.4rem 0.6rem;
+        cursor: pointer;
+        transition:
+          border-color 0.15s ease,
+          color 0.15s ease;
+      }
+      .site-search:hover {
+        border-color: var(--green);
+        color: var(--ink);
+      }
+      .site-search svg {
+        flex: none;
+      }
+      .site-search__kbd {
+        font-family: inherit;
+        font-size: var(--fs-xs);
+        color: var(--ink-muted);
+        border: 1px solid var(--hairline);
+        border-radius: 4px;
+        padding: 0 0.3rem;
+      }
+      @media (max-width: 36rem) {
+        .site-search__label,
+        .site-search__kbd {
+          display: none;
+        }
+        .site-search {
+          padding: 0.4rem;
+        }
+      }
       .site-nav a {
         text-decoration: none;
         color: var(--ink-muted);
@@ -156,11 +269,23 @@ const year = 2026;
       .site-foot__inner {
         padding-block: 2rem;
         display: grid;
-        gap: 0.35rem;
+        gap: 0.55rem;
+      }
+      .site-foot__tagline {
+        margin: 0;
+        font-size: var(--fs-sm);
+        color: var(--ink-muted);
+      }
+      .site-foot__links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem 0.9rem;
+        font-size: var(--fs-xs);
       }
       .site-foot__meta {
+        margin: 0;
         color: var(--ink-muted);
-        font-size: var(--fs-sm);
+        font-size: var(--fs-xs);
       }
       .site-foot a {
         color: var(--green-ink);
