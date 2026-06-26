@@ -1,0 +1,504 @@
+---
+/**
+ * SearchPalette — the global program command palette (⌘K / Ctrl-K / "/").
+ * Mounted once in Base.astro so it is present on every page. Native <dialog>
+ * (top-layer, platform focus-trap + Esc); Fuse + the search index load lazily on
+ * first open. See openspec change add-program-search (design.md).
+ */
+---
+
+<dialog class="palette" id="search-palette" aria-label="Search all programs">
+  <form class="palette__bar" role="search" method="dialog">
+    <svg
+      class="palette__icon"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="7"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input
+      type="search"
+      id="palette-input"
+      class="palette__input"
+      placeholder="Search all programs…"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      role="combobox"
+      aria-expanded="false"
+      aria-controls="palette-results"
+      aria-autocomplete="list"
+    />
+    <kbd class="palette__esc">Esc</kbd>
+  </form>
+
+  <div class="palette__panel">
+    <p
+      class="palette__status"
+      id="palette-status"
+      role="status"
+      aria-live="polite"
+    >
+      Type to search all programs by name, provider, or what they offer.
+    </p>
+    <ul
+      class="palette__results"
+      id="palette-results"
+      role="listbox"
+      aria-label="Search results"
+    >
+    </ul>
+  </div>
+
+  <footer class="palette__foot" aria-hidden="true">
+    <span><kbd>↑</kbd><kbd>↓</kbd> to navigate</span>
+    <span><kbd>↵</kbd> to open</span>
+    <span><kbd>esc</kbd> to close</span>
+  </footer>
+</dialog>
+
+<style>
+  .palette {
+    position: fixed;
+    inset-block-start: 10vh;
+    inset-inline: 0;
+    margin-inline: auto;
+    margin-block: 0;
+    width: min(640px, 92vw);
+    max-height: min(70vh, 40rem);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-lg);
+    background: var(--paper);
+    box-shadow:
+      0 1px 0 0 color-mix(in oklch, var(--ink) 4%, transparent),
+      0 24px 48px -16px color-mix(in oklch, var(--ink) 28%, transparent);
+    color: var(--ink);
+  }
+  .palette:not([open]) {
+    display: none;
+  }
+
+  /* Native top-layer entry/exit, reduced-motion aware (see media query below). */
+  .palette,
+  .palette::backdrop {
+    transition:
+      opacity 0.18s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1),
+      overlay 0.18s allow-discrete,
+      display 0.18s allow-discrete;
+  }
+  .palette {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+  }
+  .palette[open] {
+    opacity: 1;
+    transform: none;
+  }
+  @starting-style {
+    .palette[open] {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.985);
+    }
+  }
+  .palette::backdrop {
+    opacity: 0;
+    background: color-mix(in oklch, var(--ink) 30%, transparent);
+    backdrop-filter: blur(2px);
+  }
+  .palette[open]::backdrop {
+    opacity: 1;
+  }
+  @starting-style {
+    .palette[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  .palette__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 0.9rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .palette__icon {
+    flex: none;
+    color: var(--ink-muted);
+  }
+  .palette__input {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    font-size: 1.05rem;
+    color: var(--ink);
+    background: none;
+    border: 0;
+    padding: 0.1rem 0;
+  }
+  .palette__input::placeholder {
+    color: var(--ink-muted);
+  }
+  .palette__input:focus {
+    outline: none;
+  }
+  .palette__input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+  .palette__esc {
+    flex: none;
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-sm);
+    padding: 0.1rem 0.4rem;
+    font-family: inherit;
+  }
+
+  .palette__panel {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .palette__status {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+  }
+  .palette__status[hidden] {
+    display: none;
+  }
+  .palette__results {
+    list-style: none;
+    margin: 0;
+    padding: 0.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .palette__results:empty {
+    display: none;
+  }
+
+  /* Result rows are injected by the island; styles live here so they match tokens. */
+  .palette__results :global(.res) {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    scroll-margin: 0.4rem;
+  }
+  .palette__results :global(.res[aria-selected="true"]) {
+    background: var(--surface);
+  }
+  .palette__results :global(.res__logo) {
+    flex: none;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 5px;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+    object-fit: contain;
+    padding: 2px;
+  }
+  .palette__results :global(.res__logo--mono) {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    background: var(--surface);
+  }
+  .palette__results :global(.res__main) {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+  }
+  .palette__results :global(.res__title) {
+    font-size: var(--fs-sm);
+    font-weight: 560;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .palette__results :global(.res__provider) {
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+    text-transform: capitalize;
+  }
+  .palette__results :global(.res__value) {
+    flex: none;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    color: var(--green-ink);
+    white-space: nowrap;
+  }
+
+  .palette__foot {
+    display: flex;
+    gap: 1.1rem;
+    padding: 0.55rem 0.9rem;
+    border-top: 1px solid var(--hairline);
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+  }
+  .palette__foot kbd {
+    font-family: inherit;
+    border: 1px solid var(--hairline-strong);
+    border-radius: 4px;
+    padding: 0 0.28rem;
+    margin-right: 0.15rem;
+  }
+  @media (max-width: 30rem) {
+    .palette__foot {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .palette,
+    .palette::backdrop {
+      transition: opacity 0.001ms;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  type Entry = {
+    path: string;
+    title: string;
+    provider: string;
+    summary: string;
+    tags: string[];
+    value: string;
+    audiences: string[];
+    logo: string | null;
+    keywords: string[];
+  };
+
+  const dialog = document.getElementById(
+    "search-palette",
+  ) as HTMLDialogElement | null;
+  const input = document.getElementById(
+    "palette-input",
+  ) as HTMLInputElement | null;
+  const results = document.getElementById(
+    "palette-results",
+  ) as HTMLUListElement | null;
+  const status = document.getElementById(
+    "palette-status",
+  ) as HTMLElement | null;
+
+  if (dialog && input && results && status) {
+    // Fuse type is loaded lazily; keep this surface minimal.
+    type FuseLike = {
+      search: (q: string, o?: { limit?: number }) => { item: Entry }[];
+    };
+
+    let fuse: FuseLike | null = null;
+    let loading: Promise<void> | null = null;
+    let active = -1;
+    let current: Entry[] = [];
+
+    const PROMPT = status.textContent ?? "";
+    const esc = (s: string) =>
+      s.replace(
+        /[&<>"]/g,
+        (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!,
+      );
+
+    async function ensureLoaded() {
+      if (fuse || loading) return loading ?? Promise.resolve();
+      loading = (async () => {
+        setStatus("Loading…");
+        const [{ default: Fuse }, res] = await Promise.all([
+          import("fuse.js"),
+          fetch("/search-index.json"),
+        ]);
+        const entries: Entry[] = await res.json();
+        fuse = new Fuse(entries, {
+          includeScore: false,
+          ignoreLocation: true,
+          threshold: 0.38,
+          keys: [
+            { name: "title", weight: 5 },
+            { name: "provider", weight: 4 },
+            { name: "summary", weight: 2 },
+            { name: "tags", weight: 1.5 },
+            { name: "keywords", weight: 1 },
+          ],
+        }) as unknown as FuseLike;
+      })();
+      await loading;
+    }
+
+    function setStatus(msg: string | null) {
+      if (!msg) {
+        status!.hidden = true;
+        return;
+      }
+      status!.hidden = false;
+      status!.textContent = msg;
+    }
+
+    function logoMarkup(e: Entry) {
+      return e.logo
+        ? `<img class="res__logo" src="${e.logo}" alt="" width="26" height="26" loading="lazy" decoding="async" />`
+        : `<span class="res__logo res__logo--mono" aria-hidden="true">${esc(e.provider.charAt(0))}</span>`;
+    }
+
+    function render(items: Entry[], q: string) {
+      current = items;
+      active = items.length ? 0 : -1;
+      if (!q) {
+        setStatus(PROMPT);
+        results!.innerHTML = "";
+      } else if (!items.length) {
+        setStatus(`No programs match “${q}”.`);
+        results!.innerHTML = "";
+      } else {
+        setStatus(null);
+        results!.innerHTML = items
+          .map(
+            (e, i) =>
+              `<li class="res" role="option" id="res-${i}" aria-selected="${i === 0}" data-path="${e.path}">` +
+              logoMarkup(e) +
+              `<span class="res__main"><span class="res__title">${esc(e.title)}</span>` +
+              `<span class="res__provider">${esc(e.provider)}</span></span>` +
+              `<span class="res__value tnum">${esc(e.value)}</span></li>`,
+          )
+          .join("");
+      }
+      input!.setAttribute("aria-expanded", items.length ? "true" : "false");
+      syncActive();
+    }
+
+    function syncActive() {
+      const rows = [...results!.querySelectorAll<HTMLElement>(".res")];
+      rows.forEach((row, i) =>
+        row.setAttribute("aria-selected", String(i === active)),
+      );
+      if (active >= 0 && rows[active]) {
+        input!.setAttribute("aria-activedescendant", `res-${active}`);
+        rows[active].scrollIntoView({ block: "nearest" });
+      } else {
+        input!.removeAttribute("aria-activedescendant");
+      }
+    }
+
+    function move(delta: number) {
+      if (!current.length) return;
+      active = (active + delta + current.length) % current.length;
+      syncActive();
+    }
+
+    function go(i: number) {
+      const e = current[i];
+      if (e) window.location.href = e.path;
+    }
+
+    async function run() {
+      const q = input!.value.trim();
+      if (!q) {
+        render([], "");
+        return;
+      }
+      await ensureLoaded();
+      const hits = fuse!.search(q, { limit: 8 }).map((r) => r.item);
+      // Guard against a stale async result if the query changed mid-load.
+      if (input!.value.trim() === q) render(hits, q);
+    }
+
+    function open() {
+      if (dialog!.open) return;
+      dialog!.showModal();
+      input!.value = "";
+      render([], "");
+      input!.focus();
+      ensureLoaded(); // warm the index while the user starts typing
+    }
+
+    // --- wiring ---
+    input.addEventListener("input", run);
+
+    input.addEventListener("keydown", (ev) => {
+      if (ev.key === "ArrowDown") {
+        ev.preventDefault();
+        move(1);
+      } else if (ev.key === "ArrowUp") {
+        ev.preventDefault();
+        move(-1);
+      } else if (ev.key === "Enter") {
+        if (active >= 0) {
+          ev.preventDefault();
+          go(active);
+        }
+      }
+    });
+
+    results.addEventListener("click", (ev) => {
+      const row = (ev.target as HTMLElement).closest<HTMLElement>(".res");
+      if (row) window.location.href = row.dataset.path!;
+    });
+    results.addEventListener("pointermove", (ev) => {
+      const row = (ev.target as HTMLElement).closest<HTMLElement>(".res");
+      if (!row) return;
+      const i = [...results!.querySelectorAll(".res")].indexOf(row);
+      if (i !== active) {
+        active = i;
+        syncActive();
+      }
+    });
+
+    // Header affordance(s)
+    document
+      .querySelectorAll("[data-search-open]")
+      .forEach((btn) => btn.addEventListener("click", open));
+
+    // Global shortcuts: ⌘K / Ctrl-K anywhere; "/" only when not already typing.
+    document.addEventListener("keydown", (ev) => {
+      const k = ev.key.toLowerCase();
+      if ((ev.metaKey || ev.ctrlKey) && k === "k") {
+        ev.preventDefault();
+        dialog!.open ? dialog!.close() : open();
+        return;
+      }
+      if (
+        k === "/" &&
+        !dialog!.open &&
+        !ev.metaKey &&
+        !ev.ctrlKey &&
+        !ev.altKey
+      ) {
+        const el = document.activeElement as HTMLElement | null;
+        const typing =
+          el &&
+          (el.tagName === "INPUT" ||
+            el.tagName === "TEXTAREA" ||
+            el.isContentEditable);
+        if (!typing) {
+          ev.preventDefault();
+          open();
+        }
+      }
+    });
+  }
+</script>
