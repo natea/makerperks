@@ -3,7 +3,11 @@
 // the owner / counsel should review and finalize before relying on it.
 import Base from "../layouts/Base.astro";
 
-const updated = "2026-06-26";
+const updated = "2026-06-27";
+
+// Disclose the Apollo visitor-identification service when it is enabled (see
+// Base.astro / privacy.astro). Off by default keeps these terms free of it.
+const APOLLO_ENABLED = Boolean(import.meta.env.PUBLIC_APOLLO_APP_ID);
 ---
 
 <Base
@@ -49,6 +53,27 @@ const updated = "2026-06-26";
         Their appearance does not imply partnership, sponsorship, or endorsement
         in either direction. We carry no ads and no affiliate links.
       </p>
+
+      {
+        APOLLO_ENABLED && (
+          <>
+            <h2>Analytics and visitor identification</h2>
+            <p>
+              In addition to cookieless page analytics, this site uses a
+              third-party service (
+              <a href="https://www.apollo.io/" rel="noopener" target="_blank">
+                Apollo
+              </a>
+              ) to identify the <strong>company</strong> — not the individual —
+              associated with some visitors, by sharing the request IP address
+              with that provider. This is off by default and, where consent is
+              legally required (EU/EEA/UK), loads only after you accept the
+              on-page prompt. See the <a href="/privacy">Privacy Policy</a> for
+              details.
+            </p>
+          </>
+        )
+      }
 
       <h2>Contributions</h2>
       <p>
