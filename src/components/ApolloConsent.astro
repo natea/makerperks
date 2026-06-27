@@ -1,0 +1,236 @@
+---
+// Apollo company-level visitor identification — consent + geo gate.
+//
+// Apollo is a third-party B2B service that reverse-resolves a visitor's IP to a
+// *company* identity. Unlike the site's cookieless Umami analytics it is NOT
+// consent-free, so this component:
+//   - only renders when Base.astro is given a PUBLIC_APOLLO_APP_ID (off by default),
+//   - loads Apollo freely outside consent-required jurisdictions,
+//   - inside the EU/EEA/UK, loads it only after the visitor accepts the prompt,
+//   - persists the choice in localStorage and never loads on "decline".
+// Disclosed in /privacy and /terms. The cookieless pageview analytics is untouched.
+interface Props {
+  /** Apollo app id; presence here means the feature is enabled (gated in Base.astro). */
+  appId: string;
+}
+const { appId } = Astro.props;
+---
+
+<aside
+  id="mp-consent"
+  class="consent"
+  role="region"
+  aria-labelledby="mp-consent-title"
+  hidden
+>
+  <div class="container consent__inner">
+    <div class="consent__text">
+      <p id="mp-consent-title" class="consent__title">
+        Company-level visitor analytics
+      </p>
+      <p id="mp-consent-body" class="consent__body">
+        We use <a href="https://www.apollo.io/" rel="noopener" target="_blank"
+          >Apollo</a
+        > to identify the <strong>company</strong> (not you personally) of some visitors
+        via their IP address. Our cookieless page analytics runs either way. See our
+        <a href="/privacy">Privacy Policy</a>.
+      </p>
+    </div>
+    <div class="consent__actions">
+      <button type="button" class="consent__btn" data-consent="denied">
+        Decline
+      </button>
+      <button
+        type="button"
+        class="consent__btn consent__btn--primary"
+        data-consent="granted"
+      >
+        Accept
+      </button>
+    </div>
+  </div>
+</aside>
+
+<script is:inline define:vars={{ appId }}>
+  (function () {
+    var KEY = "mp-apollo-consent";
+    var banner = document.getElementById("mp-consent");
+
+    function loadApollo() {
+      var n = Math.random().toString(36).substring(7);
+      var s = document.createElement("script");
+      s.src =
+        "https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache=" +
+        n;
+      s.async = true;
+      s.defer = true;
+      s.onload = function () {
+        if (window.trackingFunctions) {
+          window.trackingFunctions.onLoad({ appId: appId });
+        }
+      };
+      document.head.appendChild(s);
+    }
+
+    // Geo-gate via timezone: EU/EEA/UK require prior consent. On any detection
+    // failure we fail safe to "consent required".
+    function consentRequired() {
+      var tz;
+      try {
+        tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+      } catch (e) {
+        return true;
+      }
+      if (/^Europe\//.test(tz)) return true;
+      return (
+        [
+          "Atlantic/Reykjavik",
+          "Atlantic/Canary",
+          "Atlantic/Madeira",
+          "Atlantic/Azores",
+        ].indexOf(tz) !== -1
+      );
+    }
+
+    function showBanner(focusIt) {
+      if (!banner) return;
+      banner.hidden = false;
+      if (focusIt) {
+        var first = banner.querySelector("[data-consent]");
+        if (first) first.focus();
+      }
+    }
+
+    function choose(choice) {
+      try {
+        localStorage.setItem(KEY, choice);
+      } catch (e) {}
+      if (banner) banner.hidden = true;
+      // Granting loads Apollo immediately. Withdrawing a prior grant takes effect
+      // on the next page load (a loaded third-party script can't be fully unloaded).
+      if (choice === "granted") loadApollo();
+    }
+
+    // Accept / Decline.
+    if (banner) {
+      banner.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-consent]");
+        if (btn) choose(btn.getAttribute("data-consent"));
+      });
+    }
+
+    // "Tracking settings" — withdraw or revisit a choice from anywhere (footer).
+    // Wired regardless of stored state so consent is as easy to change as to give.
+    var reopen = document.querySelector("[data-consent-reopen]");
+    if (reopen) {
+      reopen.addEventListener("click", function () {
+        try {
+          localStorage.removeItem(KEY);
+        } catch (e) {}
+        showBanner(true);
+      });
+    }
+
+    // Initial decision on this page load.
+    var stored = null;
+    try {
+      stored = localStorage.getItem(KEY);
+    } catch (e) {}
+
+    if (stored === "granted") return loadApollo();
+    if (stored === "denied") return;
+    if (!consentRequired()) return loadApollo();
+    showBanner(false);
+  })();
+</script>
+
+<style>
+  /* Consent bar — bottom-anchored, flat, hairline-drawn (DESIGN.md "Trusted Ledger":
+     paper field, 1px structure, the one green accent reserved for the primary action).
+     Shown only to EU/EEA/UK visitors who haven't chosen yet; [hidden] otherwise. */
+  .consent {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-dropdown);
+    background: color-mix(in oklch, var(--paper) 94%, transparent);
+    backdrop-filter: saturate(1.4) blur(8px);
+    border-top: 1px solid var(--hairline-strong);
+    animation: consent-in 0.2s ease;
+  }
+  .consent[hidden] {
+    display: none;
+  }
+  .consent__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding-block: 0.9rem;
+  }
+  .consent__text {
+    display: grid;
+    gap: 0.15rem;
+    max-width: var(--measure);
+  }
+  .consent__title {
+    margin: 0;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .consent__body {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+  .consent__body a {
+    color: var(--green-ink);
+  }
+  .consent__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: none;
+  }
+  .consent__btn {
+    font: inherit;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.45rem 0.95rem;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--hairline-strong);
+    background: var(--paper);
+    color: var(--ink);
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease;
+  }
+  .consent__btn:hover {
+    border-color: var(--green);
+  }
+  .consent__btn--primary {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--paper);
+  }
+  .consent__btn--primary:hover {
+    background: var(--green-deep);
+    border-color: var(--green-deep);
+  }
+  @keyframes consent-in {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .consent {
+      animation: none;
+    }
+  }
+</style>

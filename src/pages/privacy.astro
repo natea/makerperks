@@ -3,7 +3,12 @@
 // the owner / counsel should review and finalize before relying on it.
 import Base from "../layouts/Base.astro";
 
-const updated = "2026-06-26";
+const updated = "2026-06-27";
+
+// Mirrors Base.astro: when the Apollo visitor-identification service is enabled, the
+// policy must disclose it and stop claiming "no marketing trackers / no third-party
+// sharing" without qualification. Off (the default) keeps the original strong claims.
+const APOLLO_ENABLED = Boolean(import.meta.env.PUBLIC_APOLLO_APP_ID);
 ---
 
 <Base
@@ -36,12 +41,69 @@ const updated = "2026-06-26";
         name, email, or a cross-site identifier.
       </p>
 
+      {
+        APOLLO_ENABLED && (
+          <>
+            <h2>Company-level visitor identification</h2>
+            <p>
+              On some pages we use{" "}
+              <a href="https://www.apollo.io/" rel="noopener" target="_blank">
+                Apollo
+              </a>
+              , a third-party service, to identify the <strong>company</strong>{" "}
+              associated with a visitor — for example, to understand which
+              organizations find MakerPerks useful. This identifies an
+              organization,
+              <strong> not you as an individual</strong>, and works by sharing
+              your request's IP address with Apollo, which reverse-resolves it
+              to a company.
+            </p>
+            <p>
+              This is the one exception to the "no third-party sharing" rule
+              below, and we treat it carefully. It is{" "}
+              <strong>off by default</strong>, and where the law requires prior
+              consent (the EU, EEA, and UK) it does not load until you accept
+              the prompt shown at the bottom of the page; declining keeps it
+              off. Our cookieless page analytics (above) is separate and runs
+              regardless. Apollo's handling of the data it receives is governed
+              by{" "}
+              <a
+                href="https://www.apollo.io/privacy-policy"
+                rel="noopener"
+                target="_blank"
+              >
+                Apollo's privacy policy
+              </a>
+              .
+            </p>
+          </>
+        )
+      }
+
       <h2>What we do not do</h2>
       <ul>
-        <li>No advertising or marketing trackers.</li>
+        {
+          APOLLO_ENABLED ? (
+            <li>
+              No advertising or retargeting trackers, and no marketing trackers
+              beyond the company-level visitor identification described above.
+            </li>
+          ) : (
+            <li>No advertising or marketing trackers.</li>
+          )
+        }
         <li>No affiliate links or referral codes.</li>
         <li>No accounts, sign-ups, or stored personal information.</li>
-        <li>No selling or sharing of data with third parties.</li>
+        {
+          APOLLO_ENABLED ? (
+            <li>
+              No selling of your data, and no sharing with third parties except
+              the company-level visitor identification described above.
+            </li>
+          ) : (
+            <li>No selling or sharing of data with third parties.</li>
+          )
+        }
       </ul>
 
       <h2>Links to other sites</h2>
