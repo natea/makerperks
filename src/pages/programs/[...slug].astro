@@ -8,6 +8,7 @@ import {
 import { personaById } from "../../lib/personas";
 import { programJsonLd } from "../../lib/jsonld";
 import { label } from "../../lib/labels";
+import { withUtm } from "../../lib/utm";
 import logoManifest from "../../data/logo-manifest.json";
 
 export async function getStaticPaths() {
@@ -28,6 +29,14 @@ const jsonLd = programJsonLd(program, site + "/programs/" + program.id);
 
 const effortWords = ["", "Very low", "Low", "Moderate", "High"];
 const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
+
+// Outbound-link attribution. The detail page isn't a persona-scoped route, but it has
+// a clear primary persona (d.audience[0], also in the breadcrumb), so we use that as
+// the UTM campaign for granularity, falling back to "directory". utm_content is the
+// program slug. This is attribution only — the link still goes to the provider's
+// official page (see withUtm). Low-cardinality props are reused for the Umami events.
+const utmCampaign = d.audience[0] ?? "directory";
+const utmContent = program.id;
 ---
 
 <Base
@@ -92,7 +101,16 @@ const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
         }
       </div>
 
-      <a class="btn btn--primary" href={d.url} rel="noopener" target="_blank">
+      <a
+        class="btn btn--primary"
+        href={withUtm(d.url, { campaign: utmCampaign, content: utmContent })}
+        rel="noopener"
+        target="_blank"
+        data-umami-event="redeem"
+        data-umami-event-provider={d.provider_slug}
+        data-umami-event-program={program.id}
+        data-umami-event-persona={utmCampaign}
+      >
         Redeem on {label(d.provider_slug)} ↗
       </a>
     </header>
@@ -172,9 +190,16 @@ const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
                             <>
                               {" "}
                               <a
-                                href={s.action_url}
+                                href={withUtm(s.action_url, {
+                                  campaign: utmCampaign,
+                                  content: utmContent,
+                                })}
                                 rel="noopener"
                                 target="_blank"
+                                data-umami-event="tier-apply"
+                                data-umami-event-provider={d.provider_slug}
+                                data-umami-event-program={program.id}
+                                data-umami-event-persona={utmCampaign}
                               >
                                 {s.action ?? "Open"} ↗
                               </a>
