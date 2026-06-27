@@ -99,15 +99,62 @@ const overflowCount = Math.max(0, tags.length - VISIBLE_FACETS);
           autocomplete="off"
         />
       </label>
-      <label class="sort">
-        <span class="sort__label">Sort</span>
-        <select id="sort">
-          <option value="value">Dollar value</option>
-          <option value="az">A–Z</option>
-          <option value="added">Newly added</option>
-          <option value="updated">Recently updated</option>
-        </select>
-      </label>
+      <div class="tools">
+        <label class="sort">
+          <span class="sort__label">Sort</span>
+          <select id="sort">
+            <option value="value">Dollar value</option>
+            <option value="az">A–Z</option>
+            <option value="added">Newly added</option>
+            <option value="updated">Recently updated</option>
+          </select>
+        </label>
+        <div class="view" role="group" aria-label="View">
+          <button
+            class="view__btn is-active"
+            data-view="tiles"
+            type="button"
+            aria-pressed="true"
+            aria-label="Tile view"
+            title="Tile view"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 16 16"
+              aria-hidden="true"
+              fill="currentColor"
+            >
+              <rect x="1" y="1" width="6" height="6" rx="1.2"></rect>
+              <rect x="9" y="1" width="6" height="6" rx="1.2"></rect>
+              <rect x="1" y="9" width="6" height="6" rx="1.2"></rect>
+              <rect x="9" y="9" width="6" height="6" rx="1.2"></rect>
+            </svg>
+            <span class="view__label">Tiles</span>
+          </button>
+          <button
+            class="view__btn"
+            data-view="list"
+            type="button"
+            aria-pressed="false"
+            aria-label="List view"
+            title="List view"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 16 16"
+              aria-hidden="true"
+              fill="currentColor"
+            >
+              <rect x="1" y="2" width="14" height="2.4" rx="1.2"></rect>
+              <rect x="1" y="6.8" width="14" height="2.4" rx="1.2"></rect>
+              <rect x="1" y="11.6" width="14" height="2.4" rx="1.2"></rect>
+            </svg>
+            <span class="view__label">List</span>
+          </button>
+        </div>
+      </div>
     </div>
     {
       tags.length > 0 && (
@@ -158,6 +205,13 @@ const overflowCount = Math.max(0, tags.length - VISIBLE_FACETS);
         ))
       }
     </div>
+    {/* Apply the saved view before paint to avoid a tile→list flash. */}
+    <script is:inline>
+      try {
+        if (localStorage.getItem("mp-view") === "list")
+          document.getElementById("grid").classList.add("is-list");
+      } catch (e) {}
+    </script>
     <p class="empty" id="empty" hidden>
       No programs match. <button type="button" id="clear">Clear filters</button>
     </p>
@@ -272,6 +326,56 @@ const overflowCount = Math.max(0, tags.length - VISIBLE_FACETS);
       align-items: center;
       justify-content: space-between;
       margin-bottom: 0.85rem;
+    }
+    .tools {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem 1rem;
+      flex-wrap: wrap;
+    }
+    /* Tile / list view segmented control */
+    .view {
+      display: inline-flex;
+      border: 1px solid var(--hairline-strong);
+      border-radius: var(--r-sm);
+      overflow: hidden;
+    }
+    .view__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font: inherit;
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      background: var(--paper);
+      border: 0;
+      padding: 0.42rem 0.7rem;
+      cursor: pointer;
+      transition:
+        background 0.14s ease,
+        color 0.14s ease;
+    }
+    .view__btn + .view__btn {
+      border-left: 1px solid var(--hairline-strong);
+    }
+    .view__btn:hover {
+      color: var(--ink);
+    }
+    .view__btn.is-active {
+      background: var(--surface);
+      color: var(--ink);
+    }
+    .view__btn svg {
+      flex: none;
+    }
+    .view__btn:focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: -2px;
+    }
+    @media (max-width: 30rem) {
+      .view__label {
+        display: none;
+      }
     }
     .search input {
       width: min(22rem, 60vw);
@@ -392,6 +496,88 @@ const overflowCount = Math.max(0, tags.length - VISIBLE_FACETS);
       gap: 0.9rem;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
+
+    /* --- List view: reflow each card into an aligned row (tile markup unchanged;
+       head/identity are flattened with display:contents and the leaf elements are
+       grid-placed). Composes with the same filter/sort/search. --- */
+    .card-grid.is-list {
+      grid-template-columns: 1fr;
+      gap: 0;
+      border-top: 1px solid var(--hairline);
+    }
+    .card-grid.is-list :global(.card:not([hidden])) {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        "logo title foot"
+        "logo intro foot";
+      align-items: center;
+      column-gap: 0.9rem;
+      row-gap: 0.05rem;
+      padding: 0.7rem 0.55rem;
+      border: 0;
+      border-bottom: 1px solid var(--hairline);
+      border-radius: 0;
+      background: var(--paper);
+    }
+    .card-grid.is-list :global(.card:hover) {
+      transform: none;
+      border-color: var(--hairline);
+      background: var(--surface);
+    }
+    .card-grid.is-list :global(.card--gateway) {
+      background: var(--green-tint);
+    }
+    .card-grid.is-list :global(.card__head),
+    .card-grid.is-list :global(.card__identity) {
+      display: contents;
+    }
+    .card-grid.is-list :global(.card__logo) {
+      grid-area: logo;
+      align-self: center;
+    }
+    .card-grid.is-list :global(.card__provider),
+    .card-grid.is-list :global(.card__flags) {
+      display: none;
+    }
+    .card-grid.is-list :global(.card__title) {
+      grid-area: title;
+      font-size: var(--fs-sm);
+      font-weight: 620;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-grid.is-list :global(.card__intro) {
+      grid-area: intro;
+      -webkit-line-clamp: 1;
+      font-size: var(--fs-xs);
+    }
+    .card-grid.is-list :global(.card__foot) {
+      grid-area: foot;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.05rem;
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+      min-width: 8.5rem;
+    }
+    .card-grid.is-list :global(.card__value) {
+      font-size: var(--fs-sm);
+    }
+    @media (max-width: 40rem) {
+      .card-grid.is-list :global(.card:not([hidden])) {
+        grid-template-areas: "logo title foot";
+      }
+      .card-grid.is-list :global(.card__intro),
+      .card-grid.is-list :global(.card__verified) {
+        display: none;
+      }
+      .card-grid.is-list :global(.card__foot) {
+        min-width: 0;
+      }
+    }
     .empty {
       padding: 2rem 0;
       color: var(--ink-muted);
@@ -489,5 +675,28 @@ const overflowCount = Math.max(0, tags.length - VISIBLE_FACETS);
       );
       apply();
     });
+
+    // Tile / list view toggle. Switching only swaps the grid mode class, so the
+    // filter/sort/search above (which operate on the same items) are untouched.
+    // The choice persists; the inline head script already applied it pre-paint.
+    const viewBtns = [
+      ...document.querySelectorAll<HTMLButtonElement>(".view__btn"),
+    ];
+    function setView(view: string) {
+      grid.classList.toggle("is-list", view === "list");
+      viewBtns.forEach((b) => {
+        const on = b.dataset.view === view;
+        b.classList.toggle("is-active", on);
+        b.setAttribute("aria-pressed", String(on));
+      });
+      try {
+        localStorage.setItem("mp-view", view);
+      } catch {}
+    }
+    // Sync button state to whatever the pre-paint script set.
+    setView(grid.classList.contains("is-list") ? "list" : "tiles");
+    viewBtns.forEach((b) =>
+      b.addEventListener("click", () => setView(b.dataset.view ?? "tiles")),
+    );
   </script>
 </Base>
