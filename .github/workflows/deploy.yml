@@ -18,6 +18,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Same environment as deploy so the build step can read its variables (e.g.
+    # PUBLIC_APOLLO_APP_ID). Astro inlines PUBLIC_* at build time, so the value must
+    # be present here, not just in the deploy job.
+    environment: github-pages
     steps:
       - uses: actions/checkout@v4
         # Full history so build-time git-date derivation (added/updated) is correct.
@@ -30,6 +34,11 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Build site (and agent layer + OG images)
         run: bun run build
+        env:
+          # Apollo company-level visitor tracking. Empty/unset = feature off (the
+          # default on forks/PRs that lack this environment variable). Set in the
+          # github-pages environment to enable; loads gated (geo + consent) at runtime.
+          PUBLIC_APOLLO_APP_ID: ${{ vars.PUBLIC_APOLLO_APP_ID }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
