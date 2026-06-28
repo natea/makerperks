@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import ProgramCard from "../../components/ProgramCard.astro";
+import SuggestPerk from "../../components/SuggestPerk.astro";
 import { PERSONAS, personaById } from "../../lib/personas";
 import {
   getPublishedPrograms,
@@ -215,6 +216,10 @@ const overflowCount = Math.max(0, tags.length - VISIBLE_FACETS);
     <p class="empty" id="empty" hidden>
       No programs match. <button type="button" id="clear">Clear filters</button>
     </p>
+  </section>
+
+  <section class="container contribute-prompt">
+    <SuggestPerk />
   </section>
 
   <style>
@@ -490,6 +495,9 @@ const overflowCount = Math.max(0, tags.length - VISIBLE_FACETS);
       margin: 0 0 1rem;
       font-size: var(--fs-sm);
       color: var(--ink-muted);
+    }
+    .contribute-prompt {
+      margin-block: 2.5rem 1rem;
     }
     .card-grid {
       display: grid;

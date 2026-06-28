@@ -1,0 +1,60 @@
+---
+// "Suggest a perk" prompt shown at the end of program listings. A restrained,
+// hairline-drawn panel (not a card grid, not a loud callout) inviting contribution,
+// linking into the paste-a-URL flow. One green accent on the action.
+---
+
+<aside class="suggest" aria-label="Suggest a perk">
+  <div class="suggest__text">
+    <p class="suggest__title">Know a perk we're missing?</p>
+    <p class="suggest__sub">
+      Paste a link and we'll draft the listing — no git, no account, no YAML.
+    </p>
+  </div>
+  <a href="/contribute" class="suggest__cta">Suggest a perk →</a>
+</aside>
+
+<style>
+  .suggest {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-md);
+    background: var(--surface);
+  }
+  .suggest__title {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .suggest__sub {
+    margin: 0.15rem 0 0;
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+  }
+  .suggest__cta {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: white;
+    background: var(--green);
+    border: 1px solid var(--green);
+    border-radius: var(--r-sm);
+    padding: 0.5rem 0.95rem;
+    text-decoration: none;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .suggest__cta:hover {
+    background: var(--green-deep);
+    border-color: var(--green-deep);
+  }
+</style>
