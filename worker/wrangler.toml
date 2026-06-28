@@ -1,0 +1,30 @@
+name = "makerperks-contribute"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Non-secret config. Secrets (ANTHROPIC_API_KEY, GH_APP_ID, GH_APP_PRIVATE_KEY,
+# GH_APP_INSTALLATION_ID, TURNSTILE_SECRET) are set with `wrangler secret put` and
+# are NEVER committed. See README.md.
+[vars]
+# Comma-separated origins allowed to call the API (CORS). The production site + dev.
+ALLOWED_ORIGINS = "https://makerperks.com,https://www.makerperks.com,http://localhost:4321"
+# Where the canonical dataset lives (for dedup) and which repo to open PRs against.
+PERKS_JSON_URL = "https://www.makerperks.com/perks.json"
+GITHUB_REPO = "natea/makerperks"
+GITHUB_BASE_BRANCH = "main"
+# Claude model used for schema-guided extraction.
+ANTHROPIC_MODEL = "claude-sonnet-4-6"
+
+# Soft per-IP rate limit (no resource to create; namespace_id is an arbitrary int).
+# Extraction + PR work is expensive, so keep this tight: 10 requests / 60s per location.
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "2001"
+simple = { limit = 10, period = 60 }
+
+# Deploy to the *.workers.dev URL by default. To use the reserved agent domain,
+# uncomment and ensure makerperks.dev is a zone on this Cloudflare account:
+# [[routes]]
+# pattern = "api.makerperks.dev"
+# custom_domain = true

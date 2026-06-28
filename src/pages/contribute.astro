@@ -1,0 +1,93 @@
+---
+// /contribute — paste-a-URL perk submission. Paste a link → an agent drafts the
+// listing → you review/edit → it opens a PR for maintainer review. No git, account, or
+// YAML. The interactive flow lives in ContributeFlow.astro and only renders when the
+// Worker + Turnstile are configured; otherwise we fall back to the GitHub guide.
+import Base from "../layouts/Base.astro";
+import ContributeFlow from "../components/ContributeFlow.astro";
+
+const API = import.meta.env.PUBLIC_CONTRIBUTE_API ?? "";
+const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const enabled = Boolean(API && TURNSTILE_SITE_KEY);
+const GITHUB_GUIDE =
+  "https://github.com/natea/makerperks/blob/main/CONTRIBUTING.md";
+---
+
+<Base
+  title="Suggest a perk — MakerPerks"
+  description="Know a builder perk we're missing? Paste its URL and we'll draft the listing for review — no git, no account, no YAML."
+>
+  <article class="container contribute">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <span>Suggest a perk</span>
+    </nav>
+    <h1 class="contribute__title">Suggest a perk</h1>
+    <p class="contribute__lede">
+      Know a credit, discount, or program builders are missing? Paste the link —
+      we'll read the page, draft the listing, and you review it before it's
+      submitted. No git, no account, no YAML. Prefer to edit YAML directly? Use
+      the
+      <a href={GITHUB_GUIDE} rel="noopener" target="_blank">GitHub guide</a>.
+    </p>
+
+    {
+      enabled ? (
+        <ContributeFlow api={API} siteKey={TURNSTILE_SITE_KEY} />
+      ) : (
+        <p class="contribute__notice" role="status">
+          The paste-a-URL flow isn't configured in this environment yet. For
+          now, contribute through the{" "}
+          <a href={GITHUB_GUIDE} rel="noopener" target="_blank">
+            GitHub guide
+          </a>
+          .
+        </p>
+      )
+    }
+  </article>
+
+  <style>
+    .contribute {
+      padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem) 3rem;
+    }
+    .crumbs {
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      margin-bottom: 1.25rem;
+    }
+    .crumbs a {
+      color: var(--green-ink);
+      text-decoration: none;
+    }
+    .crumbs a:hover {
+      text-decoration: underline;
+    }
+    .contribute__title {
+      font-size: var(--fs-display);
+    }
+    .contribute__lede {
+      margin: 0.75rem 0 2rem;
+      max-width: var(--measure);
+      color: var(--ink-muted);
+      font-size: var(--fs-h3);
+      line-height: 1.5;
+      text-wrap: pretty;
+    }
+    .contribute__lede a {
+      color: var(--green-ink);
+    }
+    .contribute__notice {
+      max-width: var(--measure);
+      padding: 1rem 1.1rem;
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--r-md);
+      color: var(--ink-muted);
+    }
+    .contribute__notice a {
+      color: var(--green-ink);
+    }
+  </style>
+</Base>
