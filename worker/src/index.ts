@@ -30,10 +30,13 @@ interface Env extends GitHubEnv {
   RATE_LIMITER: { limit(opts: { key: string }): Promise<{ success: boolean }> };
 }
 
-function corsHeaders(origin: string | null, allowed: string[]): Record<string, string> {
+function corsHeaders(
+  origin: string | null,
+  allowed: string[],
+): Record<string, string> {
   const ok = origin && allowed.includes(origin);
   return {
-    "access-control-allow-origin": ok ? (origin as string) : allowed[0] ?? "",
+    "access-control-allow-origin": ok ? (origin as string) : (allowed[0] ?? ""),
     "access-control-allow-methods": "POST, OPTIONS",
     "access-control-allow-headers": "content-type",
     "access-control-max-age": "86400",
@@ -41,20 +44,31 @@ function corsHeaders(origin: string | null, allowed: string[]): Record<string, s
   };
 }
 
-function json(body: unknown, status: number, cors: Record<string, string>): Response {
+function json(
+  body: unknown,
+  status: number,
+  cors: Record<string, string>,
+): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { "content-type": "application/json; charset=utf-8", ...cors },
   });
 }
 
-async function verifyTurnstile(secret: string, token: string, ip: string): Promise<boolean> {
+async function verifyTurnstile(
+  secret: string,
+  token: string,
+  ip: string,
+): Promise<boolean> {
   if (!token) return false;
-  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ secret, response: token, remoteip: ip }),
-  });
+  const res = await fetch(
+    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+    {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ secret, response: token, remoteip: ip }),
+    },
+  );
   if (!res.ok) return false;
   return Boolean(((await res.json()) as { success?: boolean }).success);
 }
@@ -72,19 +86,26 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const origin = request.headers.get("origin");
-    const allowed = (env.ALLOWED_ORIGINS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    const allowed = (env.ALLOWED_ORIGINS ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     const cors = corsHeaders(origin, allowed);
 
-    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+    if (request.method === "OPTIONS")
+      return new Response(null, { status: 204, headers: cors });
 
     if (request.method === "GET" && url.pathname === "/") {
-      return new Response(HELP, { headers: { "content-type": "text/plain; charset=utf-8" } });
+      return new Response(HELP, {
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      });
     }
 
     if (url.pathname !== "/extract" && url.pathname !== "/submit") {
       return json({ error: "not found" }, 404, cors);
     }
-    if (request.method !== "POST") return json({ error: "method not allowed" }, 405, cors);
+    if (request.method !== "POST")
+      return json({ error: "method not allowed" }, 405, cors);
 
     // CORS: reject non-allowlisted origins (browser calls always send Origin).
     if (origin && !allowed.includes(origin)) {
@@ -108,10 +129,12 @@ export default {
       String(payload.turnstileToken ?? ""),
       ip,
     );
-    if (!okHuman) return json({ error: "human verification failed" }, 403, cors);
+    if (!okHuman)
+      return json({ error: "human verification failed" }, 403, cors);
 
     try {
-      if (url.pathname === "/extract") return await handleExtract(env, payload, cors);
+      if (url.pathname === "/extract")
+        return await handleExtract(env, payload, cors);
       return await handleSubmit(env, payload, cors);
     } catch (err) {
       const message = err instanceof Error ? err.message : "unexpected error";
@@ -126,7 +149,8 @@ async function handleExtract(
   cors: Record<string, string>,
 ): Promise<Response> {
   const target = String(payload.url ?? "").trim();
-  if (!/^https?:\/\//.test(target)) return json({ error: "a valid http(s) url is required" }, 400, cors);
+  if (!/^https?:\/\//.test(target))
+    return json({ error: "a valid http(s) url is required" }, 400, cors);
 
   const result = await extract(env, target);
 
@@ -145,7 +169,12 @@ async function handleExtract(
 
   const duplicate = await findDuplicate(env.PERKS_JSON_URL, result.record);
   return json(
-    { out_of_scope: false, record: result.record, confidence: result.confidence, duplicate },
+    {
+      out_of_scope: false,
+      record: result.record,
+      confidence: result.confidence,
+      duplicate,
+    },
     200,
     cors,
   );
@@ -157,7 +186,8 @@ async function handleSubmit(
   cors: Record<string, string>,
 ): Promise<Response> {
   const record = payload.record as PerkRecord | undefined;
-  const note = typeof payload.note === "string" ? payload.note.slice(0, 500) : "";
+  const note =
+    typeof payload.note === "string" ? payload.note.slice(0, 500) : "";
   const providerName =
     typeof payload.providerName === "string" && payload.providerName.trim()
       ? payload.providerName.trim()
@@ -167,10 +197,12 @@ async function handleSubmit(
 
   // Re-validate server-side — never trust the client.
   const errors = validateRecord(record);
-  if (errors.length) return json({ error: "validation failed", details: errors }, 422, cors);
+  if (errors.length)
+    return json({ error: "validation failed", details: errors }, 422, cors);
 
   const scope = outOfScopeReason(record);
-  if (scope) return json({ error: "out of scope", details: [scope] }, 422, cors);
+  if (scope)
+    return json({ error: "out of scope", details: [scope] }, 422, cors);
 
   const slug = slugify(record.title);
   const providerSlug = record.provider_slug;
@@ -195,11 +227,20 @@ async function handleSubmit(
     });
   }
 
+  // Re-run dedup server-side so the result is auditable in the PR (never trust the
+  // client's view). This does not block — a flagged duplicate the submitter chose to
+  // proceed with is surfaced for the reviewer to judge.
+  const dup = await findDuplicate(env.PERKS_JSON_URL, record);
+  const dedupLine = dup
+    ? `- Dedup: ⚠️ **possible duplicate** of [${dup.title}](https://makerperks.com/programs/${dup.slug}) (matched by ${dup.reason}) — submitter marked it as distinct`
+    : `- Dedup: ✅ no match found in \`perks.json\``;
+
   const body = [
     `Submitted via the paste-a-URL contribute flow (agent-extracted, **needs review**).`,
     ``,
     `- Source URL: ${record.url}`,
     `- Provider: \`${providerSlug}\``,
+    dedupLine,
     note ? `- Submitter note: ${note}` : ``,
     ``,
     `CI \`validate-data\` runs on this PR. Please verify the offer is real and current before merging.`,
