@@ -28,7 +28,7 @@
 
 ## 3. Submit endpoint (`POST /submit`) — GitHub App PR
 
-- [ ] 3.1 Create the `makerperks-bot` GitHub App (contents + pull-requests write,
+- [x] 3.1 Create the `makerperks-bot` GitHub App (contents + pull-requests write,
   repo-scoped); store app id / private key / installation id as Worker secrets
 - [x] 3.2 Re-validate the reviewed record server-side against the JSON schema + scope
   fence; reject (no PR) on failure
@@ -53,7 +53,7 @@
 
 ## 6. Config & secrets
 
-- [ ] 6.1 Worker secrets: `ANTHROPIC_API_KEY`, GitHub App credentials,
+- [x] 6.1 Worker secrets: `ANTHROPIC_API_KEY`, GitHub App credentials,
   `TURNSTILE_SECRET` (via `wrangler secret`; never committed)
 - [x] 6.2 Public build var for the Worker base URL (e.g. `PUBLIC_CONTRIBUTE_API`),
   documented in `.env.example`
@@ -64,8 +64,8 @@
   consumer URL, low-confidence fields flagged
 - [ ] 7.2 Edit + submit → a PR is opened with valid YAML; CI `validate-data` passes on it
 - [ ] 7.3 Duplicate URL is caught pre-submit; invalid record is rejected with no PR
-- [ ] 7.4 Endpoint rejects missing/invalid Turnstile token and over-rate-limit calls
-- [ ] 7.5 `openspec validate add-perk-submission-flow --strict` passes; site typecheck +
+- [x] 7.4 Endpoint rejects missing/invalid Turnstile token and over-rate-limit calls
+- [x] 7.5 `openspec validate add-perk-submission-flow --strict` passes; site typecheck +
   build green; Worker builds/deploys
 
 ## 8. Follow-ups (OUT OF SCOPE — not tracked here)
