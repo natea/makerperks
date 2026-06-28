@@ -60,10 +60,10 @@
 
 ## 7. Verify
 
-- [ ] 7.1 Paste a real program URL → fields extracted, scope-fence refusal works on a
+- [x] 7.1 Paste a real program URL → fields extracted, scope-fence refusal works on a
   consumer URL, low-confidence fields flagged
-- [ ] 7.2 Edit + submit → a PR is opened with valid YAML; CI `validate-data` passes on it
-- [ ] 7.3 Duplicate URL is caught pre-submit; invalid record is rejected with no PR
+- [x] 7.2 Edit + submit → a PR is opened with valid YAML; CI `validate-data` passes on it
+- [x] 7.3 Duplicate URL is caught pre-submit; invalid record is rejected with no PR
 - [x] 7.4 Endpoint rejects missing/invalid Turnstile token and over-rate-limit calls
 - [x] 7.5 `openspec validate add-perk-submission-flow --strict` passes; site typecheck +
   build green; Worker builds/deploys
