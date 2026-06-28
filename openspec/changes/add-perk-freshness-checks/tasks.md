@@ -49,7 +49,7 @@
   a deliberately-broken test URL is flagged, a fresh record is not
 - [x] 6.2 Stale-date flagging triggers on a record older than the threshold and not on a
   recent one
-- [ ] 6.3 The workflow opens a PR with the report; existing CI `validate-data` passes on
+- [x] 6.3 The workflow opens a PR with the report; existing CI `validate-data` passes on
   it; nothing is auto-merged and no `verified` date changes
 - [x] 6.4 `openspec validate add-perk-freshness-checks --strict` passes; lint/typecheck
   green
