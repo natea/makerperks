@@ -39,6 +39,10 @@ jobs:
           # default on forks/PRs that lack this environment variable). Set in the
           # github-pages environment to enable; loads gated (geo + consent) at runtime.
           PUBLIC_APOLLO_APP_ID: ${{ vars.PUBLIC_APOLLO_APP_ID }}
+          # Paste-a-URL contribute flow. Empty/unset = the /contribute page shows its
+          # GitHub-guide fallback. Set both in the github-pages environment to enable.
+          PUBLIC_CONTRIBUTE_API: ${{ vars.PUBLIC_CONTRIBUTE_API }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
