@@ -221,6 +221,9 @@ const STATUSES = ["Active", "Beta", "Upcoming", "Discontinued"];
           el,
           {
             sitekey: flow.getAttribute("data-sitekey"),
+            // The site is always light (no dark theme); pin the widget to match,
+            // otherwise it follows the visitor's OS dark-mode and renders black.
+            theme: "light",
           },
         );
       });
