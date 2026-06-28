@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
-    "validate:data": "node scripts/validate-data.mjs"
+    "validate:data": "node scripts/validate-data.mjs",
+    "check:health": "node scripts/check-perk-health.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
