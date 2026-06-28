@@ -1,0 +1,245 @@
+---
+// "For agents" — the agent-facing landing page. Explains how to consume MakerPerks
+// programmatically: the MCP query endpoint (recommended), the raw data files, and the
+// structured metadata. Content-led; reuses the restrained legal-page prose layout.
+import Base from "../layouts/Base.astro";
+
+const tools: { sig: string; desc: string }[] = [
+  {
+    sig: "search_perks(query?, audience?, category?, min_value?)",
+    desc: "Search programs by text, persona, category, or minimum value.",
+  },
+  {
+    sig: "perks_for_persona(persona)",
+    desc: "Every perk a persona qualifies for, highest value first.",
+  },
+  { sig: "get_perk(slug)", desc: "One full program record by slug." },
+  { sig: "list_personas()", desc: "The personas, with per-persona counts." },
+  { sig: "list_categories()", desc: "The category tags, with frequencies." },
+];
+
+const data: { href: string; name: string; desc: string }[] = [
+  {
+    href: "/perks.json",
+    name: "perks.json",
+    desc: "The full machine-readable dataset — every program with value, audience, tags, and provenance.",
+  },
+  {
+    href: "/llms.txt",
+    name: "llms.txt",
+    desc: "A curated index grouped by persona, following the llmstxt.org convention.",
+  },
+  {
+    href: "/llms-full.txt",
+    name: "llms-full.txt",
+    desc: "The same index with every program inlined, for a single-fetch read.",
+  },
+];
+---
+
+<Base
+  title="For agents — MakerPerks"
+  description="Consume MakerPerks programmatically: an MCP query endpoint, a machine-readable perks.json dataset, and an llms.txt index — all from one source of truth."
+>
+  <article class="container agents">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <span>For agents</span>
+    </nav>
+    <h1 class="agents__title">For agents</h1>
+    <p class="agents__lede">
+      MakerPerks is built to be read by machines as well as people. Everything
+      below is generated from the same source of truth as the site, so it never
+      drifts. Public, read-only, no key required.
+    </p>
+
+    <section class="prose">
+      <h2>Query it with MCP</h2>
+      <p>
+        The official <a
+          href="https://modelcontextprotocol.io"
+          rel="noopener"
+          target="_blank">Model Context Protocol</a
+        > endpoint lets your agent <strong>query</strong> the directory through read-only
+        tools — ask "what can an <em>X</em> claim?" instead of fetching and filtering
+        the whole dataset.
+      </p>
+
+      <p class="agents__label">Connect (Claude Code / Claude Desktop)</p>
+      <pre
+        class="code"><code>claude mcp add --transport http makerperks https://mcp.makerperks.com/mcp</code></pre>
+      <p>
+        Add it at user scope (<code>-s user</code>) to make it available across
+        all your projects. Other MCP clients: point a Streamable-HTTP transport
+        at
+        <code>https://mcp.makerperks.com/mcp</code> (legacy SSE clients can use
+        <code>/sse</code>).
+      </p>
+
+      <p class="agents__label">Tools</p>
+      <dl class="defs">
+        {
+          tools.map((t) => (
+            <div class="defs__row">
+              <dt>
+                <code>{t.sig}</code>
+              </dt>
+              <dd>{t.desc}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="agents__note">
+        Read-only and rate-limited — no accounts, no writes, no tracking.
+        Results come from the same data as <code>perks.json</code>, so they
+        reflect the latest deploy.
+      </p>
+
+      <h2>Raw data</h2>
+      <p>Prefer to fetch the dataset directly? Three formats, same source:</p>
+      <dl class="defs">
+        {
+          data.map((d) => (
+            <div class="defs__row">
+              <dt>
+                <a href={d.href}>{d.name}</a>
+              </dt>
+              <dd>{d.desc}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <h2>Structured metadata</h2>
+      <p>
+        Every program detail page embeds <a
+          href="https://schema.org/"
+          rel="noopener"
+          target="_blank">schema.org</a
+        > JSON-LD, so crawlers and assistants get typed offer data inline — no separate
+        fetch needed.
+      </p>
+    </section>
+  </article>
+
+  <style>
+    .agents {
+      padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem) 3rem;
+    }
+    .crumbs {
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+      margin-bottom: 1.25rem;
+    }
+    .crumbs a {
+      color: var(--green-ink);
+      text-decoration: none;
+    }
+    .crumbs a:hover {
+      text-decoration: underline;
+    }
+    .agents__title {
+      font-size: var(--fs-display);
+    }
+    .agents__lede {
+      margin: 0.75rem 0 0;
+      max-width: var(--measure);
+      color: var(--ink-muted);
+      font-size: var(--fs-h3);
+      line-height: 1.5;
+      text-wrap: pretty;
+    }
+    .prose {
+      margin-top: 2.5rem;
+      max-width: var(--measure);
+      display: grid;
+      gap: 0.9rem;
+    }
+    .prose h2 {
+      font-size: var(--fs-h2);
+      margin-top: 1.5rem;
+    }
+    .prose p {
+      margin: 0;
+      line-height: 1.6;
+    }
+    .prose a {
+      color: var(--green-ink);
+    }
+    .agents__label {
+      margin-top: 0.5rem !important;
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .agents__note {
+      font-size: var(--fs-sm);
+      color: var(--ink-muted);
+    }
+
+    /* Code: monospace on a faint surface, drawn with a hairline (no shadow). */
+    code {
+      font-family:
+        ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo,
+        Consolas, monospace;
+      font-size: 0.88em;
+    }
+    .prose :not(pre) > code {
+      background: var(--surface-2);
+      border: 1px solid var(--hairline);
+      border-radius: 4px;
+      padding: 0.05em 0.35em;
+      white-space: nowrap;
+    }
+    .code {
+      margin: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--hairline-strong);
+      border-radius: var(--r-sm);
+      padding: 0.8rem 1rem;
+      overflow-x: auto;
+      font-size: var(--fs-sm);
+      line-height: 1.5;
+    }
+    .code code {
+      white-space: pre;
+    }
+
+    /* Definition rows: aligned label + description, separated by hairlines. */
+    .defs {
+      margin: 0;
+      display: grid;
+      gap: 0;
+    }
+    .defs__row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.15rem 1.25rem;
+      padding-block: 0.7rem;
+      border-top: 1px solid var(--hairline);
+    }
+    .defs__row:last-child {
+      border-bottom: 1px solid var(--hairline);
+    }
+    .defs dt {
+      min-width: 0;
+    }
+    .defs dt code {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    .defs dd {
+      margin: 0;
+      color: var(--ink-muted);
+      font-size: var(--fs-sm);
+      line-height: 1.5;
+    }
+    @media (min-width: 36rem) {
+      .defs__row {
+        grid-template-columns: minmax(14rem, 22rem) 1fr;
+        align-items: baseline;
+      }
+    }
+  </style>
+</Base>
