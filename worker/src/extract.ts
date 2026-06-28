@@ -73,27 +73,50 @@ const EXTRACT_TOOL = {
         description:
           "Neutral, noun-first one-liner of what the product is (no pitch, no dollar figures). <=120 chars.",
       },
-      intro: { type: "string", description: "Concise summary of the offer + value." },
-      description: { type: "string", description: "Fuller description of the program." },
+      intro: {
+        type: "string",
+        description: "Concise summary of the offer + value.",
+      },
+      description: {
+        type: "string",
+        description: "Fuller description of the program.",
+      },
       url: { type: "string", description: "The official program/apply URL." },
       value_type: { type: "string", enum: [...VALUE_TYPES] },
       max_value: {
         type: "number",
-        description: "Max credit value (USD), or discount percentage, or 0 if a free tier / unspecified.",
+        description:
+          "Max credit value (USD), or discount percentage, or 0 if a free tier / unspecified.",
       },
       min_value: { type: "number" },
       currency: { type: "string", enum: [...CURRENCIES] },
       audience: {
         type: "array",
         items: { type: "string", enum: [...AUDIENCES] },
-        description: "Which builder personas this serves. Be accurate, not generous.",
+        description:
+          "Which builder personas this serves. Be accurate, not generous.",
       },
       tags: {
         type: "array",
         items: { type: "string" },
-        description: "Up to 5 builder/dev-adjacent category tags, e.g. cloud, ai, dev tools.",
+        description:
+          "Up to 5 builder/dev-adjacent category tags, e.g. cloud, ai, dev tools.",
       },
-      region: { type: "string", description: "'global' or a region code like US, EU." },
+      region: {
+        type: "string",
+        description: "'global' or a region code like US, EU.",
+      },
+      aggregator: {
+        type: "boolean",
+        description:
+          "True if this is a gateway whose value is unlocking builder perks from OTHER providers (e.g. Mercury, Brex, Ramp, Y Combinator).",
+      },
+      unlocks: {
+        type: "array",
+        items: { type: "string" },
+        description:
+          "When aggregator=true, the lowercase provider slugs this gateway unlocks (e.g. aws, openai, perplexity).",
+      },
       confidence: {
         type: "object",
         description: "Per-field confidence 0-1 for the values above.",
@@ -117,12 +140,17 @@ const EXTRACT_TOOL = {
 
 const SYSTEM = `You extract builder-perk program metadata from a web page for MakerPerks, a curated directory of perks (free credits, discounts, programs) for startups, students, OSS maintainers, indie devs, ambassadors, and non-profits.
 
-Scope fence: ONLY builder + dev-adjacent perks (cloud, AI/ML, dev tools, SaaS, infra, security, data, design, productivity, learning, hardware). If the page is a consumer/lifestyle offer (fashion, travel, streaming, retail banking, food, gaming, etc.), set out_of_scope=true and do not invent program fields.
+Scope fence: builder + dev-adjacent perks (cloud, AI/ML, dev tools, SaaS, infra, security, data, design, productivity, learning, hardware).
+
+ALSO IN SCOPE — gateways/aggregators: business-banking, fintech, accelerator, or platform programs whose value is UNLOCKING builder credits/perks from OTHER providers (the way Mercury, Brex, Ramp, Stripe Atlas, and Y Combinator do). If the page is such a gateway, set out_of_scope=false, aggregator=true, and list the unlocked providers in 'unlocks' as lowercase slugs (e.g. aws, openai, perplexity). A platform is a gateway even if its core product is banking/finance, as long as it bundles builder perks.
+
+OUT OF SCOPE — refuse (out_of_scope=true) only genuine consumer/lifestyle offers with no builder-perk unlock: fashion, travel, streaming, food/groceries, gaming, retail shopping, personal/consumer banking, fitness, dating, beauty. Do not invent program fields for these.
 
 Rules:
 - Audience accuracy: only include a persona if the page actually says it qualifies. Do not list every persona by default.
 - Never fabricate a dollar value; use 0 if unstated. For a percentage discount use value_type "discount" and max_value = the percent.
 - summary is a neutral noun-first one-liner, no marketing, no dollar amounts, <=120 chars.
+- Set aggregator=true ONLY for genuine gateways, and then unlocks must be non-empty.
 - Provide a confidence (0-1) for each field you fill.
 Call the record_perk tool exactly once.`;
 
@@ -161,10 +189,17 @@ export async function extract(
   }
 
   const data = (await res.json()) as {
-    content?: Array<{ type: string; name?: string; input?: Record<string, unknown> }>;
+    content?: Array<{
+      type: string;
+      name?: string;
+      input?: Record<string, unknown>;
+    }>;
   };
-  const toolUse = data.content?.find((c) => c.type === "tool_use" && c.name === "record_perk");
-  if (!toolUse?.input) throw new Error("Claude did not return a structured record");
+  const toolUse = data.content?.find(
+    (c) => c.type === "tool_use" && c.name === "record_perk",
+  );
+  if (!toolUse?.input)
+    throw new Error("Claude did not return a structured record");
   const out = toolUse.input as Record<string, unknown>;
 
   const confidence = (out.confidence as Record<string, number>) ?? {};
@@ -187,11 +222,17 @@ export async function extract(
     min_value: typeof out.min_value === "number" ? out.min_value : undefined,
     max_value: typeof out.max_value === "number" ? out.max_value : 0,
     audience: Array.isArray(out.audience)
-      ? (out.audience.filter((a) => AUDIENCES.includes(a as never)) as PerkRecord["audience"])
+      ? (out.audience.filter((a) =>
+          AUDIENCES.includes(a as never),
+        ) as PerkRecord["audience"])
       : [],
     tags: Array.isArray(out.tags) ? (out.tags as string[]).slice(0, 5) : [],
     region: out.region ? String(out.region) : "global",
     status: "Active",
+    aggregator: Boolean(out.aggregator),
+    unlocks: Array.isArray(out.unlocks)
+      ? (out.unlocks as string[]).map((u) => slugify(String(u))).filter(Boolean)
+      : [],
     sources: ["makerperks"],
     verified: today(),
   };
@@ -200,6 +241,8 @@ export async function extract(
     record,
     confidence,
     out_of_scope,
-    out_of_scope_reason: out.out_of_scope_reason ? String(out.out_of_scope_reason) : undefined,
+    out_of_scope_reason: out.out_of_scope_reason
+      ? String(out.out_of_scope_reason)
+      : undefined,
   };
 }

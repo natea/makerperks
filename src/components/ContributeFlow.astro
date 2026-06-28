@@ -137,6 +137,21 @@ const STATUSES = ["Active", "Beta", "Upcoming", "Discontinued"];
       </label>
     </div>
 
+    <div class="row">
+      <label class="check check--block">
+        <input type="checkbox" name="aggregator" />
+        <span>Gateway — unlocks other providers' perks</span>
+      </label>
+      <label class="field">
+        <span class="field__label"
+          >Unlocks <span class="field__opt"
+            >· provider slugs, comma-separated</span
+          ></span
+        >
+        <input type="text" name="unlocks" placeholder="aws, openai" />
+      </label>
+    </div>
+
     <label class="field">
       <span class="field__label"
         >Note to reviewers <span class="field__opt">· optional</span></span
@@ -310,6 +325,10 @@ const STATUSES = ["Active", "Beta", "Upcoming", "Discontinued"];
         flag(k, conf[k]);
       });
       setVal("tags", (rec.tags || []).join(", "));
+      review.querySelector('[name="aggregator"]').checked = Boolean(
+        rec.aggregator,
+      );
+      setVal("unlocks", (rec.unlocks || []).join(", "));
       review.querySelectorAll('[name="audience"]').forEach(function (cb) {
         cb.checked = (rec.audience || []).indexOf(cb.value) !== -1;
       });
@@ -353,6 +372,19 @@ const STATUSES = ["Active", "Beta", "Upcoming", "Discontinued"];
       var providerName = get("providerName");
       if (audience.length === 0)
         return err(review, "Pick at least one audience.");
+      var aggregator = review.querySelector('[name="aggregator"]').checked;
+      var unlocks = review
+        .querySelector('[name="unlocks"]')
+        .value.split(",")
+        .map(function (s) {
+          return s.trim();
+        })
+        .filter(Boolean);
+      if (aggregator && unlocks.length === 0)
+        return err(
+          review,
+          "A gateway must list at least one unlocked provider.",
+        );
       var record = {
         provider_slug: get("provider_slug"),
         title: get("title"),
@@ -367,6 +399,8 @@ const STATUSES = ["Active", "Beta", "Upcoming", "Discontinued"];
         tags: tags,
         region: get("region") || "global",
         status: get("status") || "Active",
+        aggregator: aggregator,
+        unlocks: aggregator ? unlocks : [],
         sources: ["makerperks"],
         verified: new Date().toISOString().slice(0, 10),
       };
@@ -516,6 +550,9 @@ const STATUSES = ["Active", "Beta", "Upcoming", "Discontinued"];
   .check input {
     width: auto;
     accent-color: var(--green);
+  }
+  .check--block {
+    padding-block: 0.55rem;
   }
 
   .ts {

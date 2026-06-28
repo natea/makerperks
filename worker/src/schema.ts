@@ -36,6 +36,8 @@ export interface PerkRecord {
   tags: string[];
   region: string;
   status: (typeof STATUSES)[number];
+  aggregator?: boolean;
+  unlocks?: string[];
   sources: string[];
   verified: string; // YYYY-MM-DD
 }
@@ -44,12 +46,13 @@ const SLUG_RE = /^[a-z0-9-]+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 // Obvious consumer/lifestyle signals outside the builder + dev-adjacent fence.
-// Backstop only — Claude's out_of_scope flag is the primary gate.
+// Backstop only — Claude's out_of_scope flag is the primary gate. Note: "banking"/
+// "fintech" are intentionally NOT here — a gateway whose value is unlocking builder
+// perks (Mercury, Brex, Ramp, Rho) is in scope as an aggregator.
 const OUT_OF_SCOPE_TAGS = new Set([
   "fashion",
   "travel",
   "streaming",
-  "banking",
   "food",
   "groceries",
   "retail",
@@ -73,7 +76,8 @@ export function slugify(input: string): string {
 /** Validate a reviewed record. Returns the list of human-readable problems (empty = ok). */
 export function validateRecord(rec: unknown): string[] {
   const errors: string[] = [];
-  if (typeof rec !== "object" || rec === null) return ["record must be an object"];
+  if (typeof rec !== "object" || rec === null)
+    return ["record must be an object"];
   const r = rec as Record<string, unknown>;
 
   const reqStr = (k: string) => {
@@ -87,7 +91,9 @@ export function validateRecord(rec: unknown): string[] {
   reqStr("url");
 
   if (typeof r.provider_slug === "string" && !SLUG_RE.test(r.provider_slug))
-    errors.push("provider_slug must be lowercase letters, numbers, and hyphens");
+    errors.push(
+      "provider_slug must be lowercase letters, numbers, and hyphens",
+    );
 
   if (typeof r.url === "string" && !/^https?:\/\//.test(r.url))
     errors.push("url must be an http(s) URL");
@@ -98,7 +104,10 @@ export function validateRecord(rec: unknown): string[] {
   if (typeof r.max_value !== "number" || Number.isNaN(r.max_value))
     errors.push("max_value must be a number");
 
-  if (r.value_type !== undefined && !VALUE_TYPES.includes(r.value_type as never))
+  if (
+    r.value_type !== undefined &&
+    !VALUE_TYPES.includes(r.value_type as never)
+  )
     errors.push(`value_type must be one of ${VALUE_TYPES.join(", ")}`);
   if (r.currency !== undefined && !CURRENCIES.includes(r.currency as never))
     errors.push(`currency must be one of ${CURRENCIES.join(", ")}`);
@@ -117,6 +126,14 @@ export function validateRecord(rec: unknown): string[] {
     if (!Array.isArray(r.tags)) errors.push("tags must be an array");
     else if (r.tags.length > 5) errors.push("tags: at most 5 allowed");
   }
+
+  if (
+    r.aggregator === true &&
+    (!Array.isArray(r.unlocks) || r.unlocks.length === 0)
+  )
+    errors.push(
+      "a gateway (aggregator) must list at least one unlocked provider",
+    );
 
   if (!Array.isArray(r.sources) || r.sources.length === 0)
     errors.push("sources must be non-empty");

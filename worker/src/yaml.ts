@@ -23,6 +23,11 @@ export function recordToYaml(rec: PerkRecord): string {
     tags: rec.tags && rec.tags.length ? rec.tags : undefined,
     region: rec.region && rec.region !== "global" ? rec.region : undefined,
     status: rec.status && rec.status !== "Active" ? rec.status : undefined,
+    aggregator: rec.aggregator ? true : undefined,
+    unlocks:
+      rec.aggregator && rec.unlocks && rec.unlocks.length
+        ? rec.unlocks
+        : undefined,
     sources: rec.sources,
     verified: rec.verified,
   };
@@ -30,6 +35,13 @@ export function recordToYaml(rec: PerkRecord): string {
   return stringify(obj, { lineWidth: 0 });
 }
 
-export function providerToYaml(p: { slug: string; name: string; url: string }): string {
-  return stringify({ slug: p.slug, name: p.name, url: p.url }, { lineWidth: 0 });
+export function providerToYaml(p: {
+  slug: string;
+  name: string;
+  url: string;
+}): string {
+  return stringify(
+    { slug: p.slug, name: p.name, url: p.url },
+    { lineWidth: 0 },
+  );
 }
