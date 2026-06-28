@@ -3,6 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Workers Logs — keep in sync with the dashboard (Observability enabled there).
+[observability.logs]
+enabled = true
+invocation_logs = true
+
 # Non-secret config. Secrets (ANTHROPIC_API_KEY, GH_APP_ID, GH_APP_PRIVATE_KEY,
 # GH_APP_INSTALLATION_ID, TURNSTILE_SECRET) are set with `wrangler secret put` and
 # are NEVER committed. See README.md.
