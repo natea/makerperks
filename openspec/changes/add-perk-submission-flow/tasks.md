@@ -9,40 +9,40 @@
 
 ## 1. Cloudflare Worker — scaffold
 
-- [ ] 1.1 Add a `worker/` wrangler project (TypeScript); config for routes, KV (rate
+- [x] 1.1 Add a `worker/` wrangler project (TypeScript); config for routes, KV (rate
   limit), and secret bindings; document `wrangler deploy`
-- [ ] 1.2 CORS allowlist for the site origin(s); reject other origins
-- [ ] 1.3 Turnstile verification + per-IP rate limiting on every endpoint (reject
+- [x] 1.2 CORS allowlist for the site origin(s); reject other origins
+- [x] 1.3 Turnstile verification + per-IP rate limiting on every endpoint (reject
   before any fetch/LLM/PR work)
 
 ## 2. Extraction endpoint (`POST /extract`)
 
-- [ ] 2.1 Fetch the submitted URL (and at most one obvious sub-page, e.g. pricing/
+- [x] 2.1 Fetch the submitted URL (and at most one obvious sub-page, e.g. pricing/
   eligibility); reduce to clean text
-- [ ] 2.2 Call Claude with the `program.schema.json` field set + scope fence +
+- [x] 2.2 Call Claude with the `program.schema.json` field set + scope fence +
   audience-accuracy rule; request structured JSON for the listing fields
-- [ ] 2.3 Return fields + per-field confidence + an out-of-scope flag; default
+- [x] 2.3 Return fields + per-field confidence + an out-of-scope flag; default
   `verified` to today and `sources` to `["makerperks"]`
-- [ ] 2.4 Dedup: fetch published `perks.json`, match candidate URL-domain / provider /
+- [x] 2.4 Dedup: fetch published `perks.json`, match candidate URL-domain / provider /
   title against existing records, return any likely duplicate
 
 ## 3. Submit endpoint (`POST /submit`) — GitHub App PR
 
 - [ ] 3.1 Create the `makerperks-bot` GitHub App (contents + pull-requests write,
   repo-scoped); store app id / private key / installation id as Worker secrets
-- [ ] 3.2 Re-validate the reviewed record server-side against the JSON schema + scope
+- [x] 3.2 Re-validate the reviewed record server-side against the JSON schema + scope
   fence; reject (no PR) on failure
-- [ ] 3.3 Open a branch + PR adding `src/content/programs/<provider>/<slug>.yaml`
+- [x] 3.3 Open a branch + PR adding `src/content/programs/<provider>/<slug>.yaml`
   (and `providers/<provider>.yaml` if new) via short-lived installation token; PR body
   records source URL + "agent-extracted, needs review"
 
 ## 4. Contribute flow — via `/impeccable`
 
-- [ ] 4.0 Build the flow surfaces through impeccable; browser-verify
-- [ ] 4.1 `/contribute` page: paste-URL step (with Turnstile) → calls `/extract`
-- [ ] 4.2 Review form: all schema fields pre-filled + editable; flag low-confidence
+- [x] 4.0 Build the flow surfaces through impeccable; browser-verify
+- [x] 4.1 `/contribute` page: paste-URL step (with Turnstile) → calls `/extract`
+- [x] 4.2 Review form: all schema fields pre-filled + editable; flag low-confidence
   fields; show any duplicate match; link the GitHub guide for git users
-- [ ] 4.3 Submit → `/submit`; success state links to the opened PR; clear error states
+- [x] 4.3 Submit → `/submit`; success state links to the opened PR; clear error states
 
 ## 5. Promotion — via `/impeccable`
 
@@ -55,7 +55,7 @@
 
 - [ ] 6.1 Worker secrets: `ANTHROPIC_API_KEY`, GitHub App credentials,
   `TURNSTILE_SECRET` (via `wrangler secret`; never committed)
-- [ ] 6.2 Public build var for the Worker base URL (e.g. `PUBLIC_CONTRIBUTE_API`),
+- [x] 6.2 Public build var for the Worker base URL (e.g. `PUBLIC_CONTRIBUTE_API`),
   documented in `.env.example`
 
 ## 7. Verify

@@ -1,0 +1,595 @@
+---
+// The interactive paste-a-URL submission flow (steps + client logic), extracted into
+// its own component so the `is:inline` define:vars script lives at a component's top
+// level (Astro/prettier can't format such a script nested inside a `{cond && (...)}`
+// expression). Rendered by /contribute only when the Worker + Turnstile are configured.
+interface Props {
+  api: string;
+  siteKey: string;
+}
+const { api, siteKey } = Astro.props;
+
+const PERSONAS = [
+  ["startup", "Startups"],
+  ["student", "Students"],
+  ["oss", "Open source"],
+  ["indie", "Indie devs"],
+  ["ambassador", "Ambassadors"],
+  ["nonprofit", "Non-profits"],
+];
+const VALUE_TYPES = ["credits", "discount", "free_tier"];
+const CURRENCIES = ["USD", "EUR", "GBP"];
+const STATUSES = ["Active", "Beta", "Upcoming", "Discontinued"];
+---
+
+<div class="flow" data-api={api} data-sitekey={siteKey}>
+  {/* Step 1 — paste a URL */}
+  <form class="step" id="step-paste" novalidate>
+    <label class="field">
+      <span class="field__label">Program URL</span>
+      <input
+        type="url"
+        name="url"
+        required
+        placeholder="https://provider.com/startups"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <span class="field__hint">
+        The official page for the offer (e.g. a "for startups" or pricing page).
+      </span>
+    </label>
+    <div class="ts" data-turnstile="paste"></div>
+    <button type="submit" class="btn btn--primary">Read the page →</button>
+    <p class="step__error" data-error hidden></p>
+  </form>
+
+  {/* Step 2 — review & edit */}
+  <form class="step" id="step-review" hidden>
+    <div class="review__banner" data-duplicate hidden></div>
+    <p class="review__intro">
+      Here's what we read. <strong>Check every field</strong> and fix anything before
+      submitting — flagged fields were low-confidence.
+    </p>
+
+    <label class="field">
+      <span class="field__label">Title</span>
+      <input type="text" name="title" required />
+    </label>
+    <div class="row">
+      <label class="field">
+        <span class="field__label">Provider slug</span>
+        <input type="text" name="provider_slug" required pattern="[a-z0-9-]+" />
+      </label>
+      <label class="field">
+        <span class="field__label">New provider name (if not listed yet)</span>
+        <input type="text" name="providerName" placeholder="optional" />
+      </label>
+    </div>
+    <label class="field">
+      <span class="field__label"
+        >Summary <span class="field__opt">· noun-first, ≤120 chars</span></span
+      >
+      <input type="text" name="summary" maxlength="120" />
+    </label>
+    <label class="field">
+      <span class="field__label">Intro</span>
+      <input type="text" name="intro" required />
+    </label>
+    <label class="field">
+      <span class="field__label">Description</span>
+      <textarea name="description" rows="4" required></textarea>
+    </label>
+    <label class="field">
+      <span class="field__label">Redeem URL</span>
+      <input type="url" name="url" required />
+    </label>
+
+    <div class="row">
+      <label class="field">
+        <span class="field__label">Value type</span>
+        <select name="value_type">
+          {VALUE_TYPES.map((v) => <option value={v}>{v}</option>)}
+        </select>
+      </label>
+      <label class="field">
+        <span class="field__label">Max value</span>
+        <input type="number" name="max_value" min="0" step="1" required />
+      </label>
+      <label class="field">
+        <span class="field__label">Currency</span>
+        <select name="currency">
+          {CURRENCIES.map((c) => <option value={c}>{c}</option>)}
+        </select>
+      </label>
+    </div>
+
+    <fieldset class="field">
+      <legend class="field__label">Audience</legend>
+      <div class="checks">
+        {
+          PERSONAS.map(([id, label]) => (
+            <label class="check">
+              <input type="checkbox" name="audience" value={id} />
+              <span>{label}</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <div class="row">
+      <label class="field">
+        <span class="field__label"
+          >Tags <span class="field__opt">· comma-separated, ≤5</span></span
+        >
+        <input type="text" name="tags" placeholder="cloud, ai, dev tools" />
+      </label>
+      <label class="field">
+        <span class="field__label">Region</span>
+        <input type="text" name="region" value="global" />
+      </label>
+      <label class="field">
+        <span class="field__label">Status</span>
+        <select name="status">
+          {STATUSES.map((s) => <option value={s}>{s}</option>)}
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="field__label"
+        >Note to reviewers <span class="field__opt">· optional</span></span
+      >
+      <textarea
+        name="note"
+        rows="2"
+        placeholder="Anything a maintainer should know"></textarea>
+    </label>
+
+    <p class="review__auto">
+      <code>verified</code> is set to today and <code>sources</code> to <code
+        >["makerperks"]</code
+      > automatically. Submitting opens a pull request — a maintainer reviews it before
+      anything goes live.
+    </p>
+
+    <div class="ts" data-turnstile="review"></div>
+    <div class="review__actions">
+      <button type="button" class="btn" data-back>← Back</button>
+      <button type="submit" class="btn btn--primary">Submit for review →</button
+      >
+    </div>
+    <p class="step__error" data-error hidden></p>
+  </form>
+
+  {/* Step 3 — success */}
+  <div class="step success" id="step-success" hidden role="status">
+    <h2 class="success__title">Submitted — thank you ✓</h2>
+    <p>
+      Your perk is now a pull request for a maintainer to review and merge.
+      Nothing publishes until then.
+    </p>
+    <p>
+      <a class="btn btn--primary" data-pr-link rel="noopener" target="_blank"
+        >View the pull request ↗</a
+      >
+    </p>
+    <p><a href="/contribute" data-restart>Suggest another →</a></p>
+  </div>
+
+  {/* Out-of-scope refusal */}
+  <div class="step notice" id="step-scope" hidden role="status">
+    <p data-scope-reason></p>
+    <p>
+      MakerPerks is fenced to builder + dev-adjacent perks (cloud, AI, dev
+      tools, SaaS, infra, security, data, learning, design, hardware).
+    </p>
+    <p><a href="/contribute" data-restart>Try another URL →</a></p>
+  </div>
+</div>
+
+<script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=mpTurnstileReady"
+  async
+  defer
+  is:inline></script>
+<script is:inline define:vars={{ api }}>
+  (function () {
+    var flow = document.querySelector(".flow");
+    if (!flow) return;
+    var widgets = {};
+
+    window.mpTurnstileReady = function () {
+      flow.querySelectorAll("[data-turnstile]").forEach(function (el) {
+        widgets[el.getAttribute("data-turnstile")] = window.turnstile.render(
+          el,
+          {
+            sitekey: flow.getAttribute("data-sitekey"),
+          },
+        );
+      });
+    };
+
+    function token(name) {
+      try {
+        return window.turnstile.getResponse(widgets[name]) || "";
+      } catch (e) {
+        return "";
+      }
+    }
+    function resetTs(name) {
+      try {
+        window.turnstile.reset(widgets[name]);
+      } catch (e) {}
+    }
+
+    var paste = document.getElementById("step-paste");
+    var review = document.getElementById("step-review");
+    var success = document.getElementById("step-success");
+    var scope = document.getElementById("step-scope");
+
+    function show(el) {
+      [paste, review, success, scope].forEach(function (s) {
+        s.hidden = s !== el;
+      });
+    }
+    function err(form, msg) {
+      var e = form.querySelector("[data-error]");
+      if (!e) return;
+      e.textContent = msg;
+      e.hidden = !msg;
+    }
+    function setVal(name, value) {
+      var el = review.querySelector('[name="' + name + '"]');
+      if (el != null && value != null) el.value = value;
+    }
+    function flag(name, conf) {
+      var el = review.querySelector('[name="' + name + '"]');
+      if (el && typeof conf === "number" && conf < 0.6)
+        el.closest(".field").classList.add("is-lowconf");
+    }
+
+    // Step 1 — paste → /extract
+    paste.addEventListener("submit", function (e) {
+      e.preventDefault();
+      err(paste, "");
+      var url = paste.querySelector('[name="url"]').value.trim();
+      var t = token("paste");
+      if (!t) return err(paste, "Please complete the human check.");
+      var btn = paste.querySelector("button[type=submit]");
+      btn.disabled = true;
+      btn.textContent = "Reading…";
+      fetch(api + "/extract", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ url: url, turnstileToken: t }),
+      })
+        .then(function (r) {
+          return r.json().then(function (d) {
+            return { ok: r.ok, d: d };
+          });
+        })
+        .then(function (res) {
+          resetTs("paste");
+          if (!res.ok) throw new Error(res.d.error || "Extraction failed.");
+          if (res.d.out_of_scope) {
+            scope.querySelector("[data-scope-reason]").textContent =
+              res.d.reason || "That looks out of scope.";
+            return show(scope);
+          }
+          fillReview(res.d);
+          show(review);
+        })
+        .catch(function (e2) {
+          err(paste, e2.message);
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = "Read the page →";
+        });
+    });
+
+    function fillReview(d) {
+      var rec = d.record || {};
+      var conf = d.confidence || {};
+      [
+        "title",
+        "provider_slug",
+        "summary",
+        "intro",
+        "description",
+        "url",
+        "value_type",
+        "max_value",
+        "currency",
+        "region",
+        "status",
+      ].forEach(function (k) {
+        if (rec[k] != null) setVal(k, rec[k]);
+        flag(k, conf[k]);
+      });
+      setVal("tags", (rec.tags || []).join(", "));
+      review.querySelectorAll('[name="audience"]').forEach(function (cb) {
+        cb.checked = (rec.audience || []).indexOf(cb.value) !== -1;
+      });
+      var dup = review.querySelector("[data-duplicate]");
+      if (d.duplicate) {
+        dup.innerHTML =
+          'Possible duplicate of <a href="/programs/' +
+          d.duplicate.slug +
+          '" target="_blank" rel="noopener">' +
+          d.duplicate.title +
+          "</a>. Submit only if this is genuinely different.";
+        dup.hidden = false;
+      } else {
+        dup.hidden = true;
+      }
+    }
+
+    // Step 2 — review → /submit
+    review.addEventListener("submit", function (e) {
+      e.preventDefault();
+      err(review, "");
+      var t = token("review");
+      if (!t) return err(review, "Please complete the human check.");
+      var audience = Array.prototype.map.call(
+        review.querySelectorAll('[name="audience"]:checked'),
+        function (cb) {
+          return cb.value;
+        },
+      );
+      var tags = review
+        .querySelector('[name="tags"]')
+        .value.split(",")
+        .map(function (s) {
+          return s.trim();
+        })
+        .filter(Boolean)
+        .slice(0, 5);
+      var get = function (n) {
+        return review.querySelector('[name="' + n + '"]').value.trim();
+      };
+      var providerName = get("providerName");
+      if (audience.length === 0)
+        return err(review, "Pick at least one audience.");
+      var record = {
+        provider_slug: get("provider_slug"),
+        title: get("title"),
+        summary: get("summary") || undefined,
+        intro: get("intro"),
+        description: get("description"),
+        url: get("url"),
+        value_type: get("value_type"),
+        currency: get("currency"),
+        max_value: Number(get("max_value") || 0),
+        audience: audience,
+        tags: tags,
+        region: get("region") || "global",
+        status: get("status") || "Active",
+        sources: ["makerperks"],
+        verified: new Date().toISOString().slice(0, 10),
+      };
+
+      var btn = review.querySelector("button[type=submit]");
+      btn.disabled = true;
+      btn.textContent = "Submitting…";
+      fetch(api + "/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          record: record,
+          providerName: providerName || undefined,
+          providerNew: providerName ? true : false,
+          note: get("note") || undefined,
+          turnstileToken: t,
+        }),
+      })
+        .then(function (r) {
+          return r.json().then(function (d) {
+            return { ok: r.ok, d: d };
+          });
+        })
+        .then(function (res) {
+          resetTs("review");
+          if (!res.ok) {
+            var msg = res.d.error || "Submission failed.";
+            if (res.d.details) msg += " — " + res.d.details.join("; ");
+            throw new Error(msg);
+          }
+          success.querySelector("[data-pr-link]").href = res.d.pr;
+          show(success);
+        })
+        .catch(function (e2) {
+          err(review, e2.message);
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = "Submit for review →";
+        });
+    });
+
+    review.querySelector("[data-back]").addEventListener("click", function () {
+      show(paste);
+    });
+  })();
+</script>
+
+<style>
+  .flow {
+    max-width: var(--measure);
+  }
+  .step {
+    display: grid;
+    gap: 1rem;
+  }
+  /* [hidden] must win over the display rules above (a class selector otherwise
+     overrides the UA hidden rule, leaving later steps visible). */
+  .flow [hidden] {
+    display: none !important;
+  }
+  .notice {
+    max-width: var(--measure);
+    padding: 1rem 1.1rem;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-md);
+    color: var(--ink-muted);
+  }
+  .notice a {
+    color: var(--green-ink);
+  }
+
+  .field {
+    display: grid;
+    gap: 0.3rem;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .field__label {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .field__opt {
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+  .field__hint {
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    font: inherit;
+    font-size: var(--fs-sm);
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-sm);
+    padding: 0.5rem 0.65rem;
+    width: 100%;
+  }
+  .field textarea {
+    resize: vertical;
+  }
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--ink-muted);
+  }
+  .field.is-lowconf input,
+  .field.is-lowconf textarea,
+  .field.is-lowconf select {
+    border-color: var(--green);
+    background: var(--green-tint);
+  }
+  .field.is-lowconf .field__label::after {
+    content: " · check this";
+    font-weight: 400;
+    color: var(--green-ink);
+  }
+  .row {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 36rem) {
+    .row {
+      grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+      align-items: end;
+    }
+  }
+  .checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+  .check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: var(--fs-sm);
+  }
+  .check input {
+    width: auto;
+    accent-color: var(--green);
+  }
+
+  .ts {
+    min-height: 65px;
+  }
+  .review__intro {
+    margin: 0;
+    color: var(--ink-muted);
+    font-size: var(--fs-sm);
+  }
+  .review__banner {
+    padding: 0.7rem 0.9rem;
+    background: var(--green-tint);
+    border: 1px solid var(--green);
+    border-radius: var(--r-sm);
+    font-size: var(--fs-sm);
+  }
+  .review__banner a {
+    color: var(--green-ink);
+  }
+  .review__auto {
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+  }
+  .review__auto code {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+  }
+  .review__actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .step__error {
+    margin: 0;
+    color: var(--green-ink);
+    font-size: var(--fs-sm);
+  }
+  .success__title {
+    font-size: var(--fs-h2);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.55rem 1rem;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--hairline-strong);
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease;
+  }
+  .btn:hover {
+    border-color: var(--green);
+  }
+  .btn--primary {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+  .btn--primary:hover {
+    background: var(--green-deep);
+    border-color: var(--green-deep);
+  }
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+</style>

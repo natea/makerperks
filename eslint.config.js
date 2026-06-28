@@ -10,6 +10,7 @@ export default [
       "node_modules/",
       "src/content/",
       "mcp-worker/",
+      "worker/",
     ],
   },
   js.configs.recommended,
