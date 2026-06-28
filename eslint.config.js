@@ -4,7 +4,13 @@ import js from "@eslint/js";
 
 export default [
   {
-    ignores: ["dist/", ".astro/", "node_modules/", "src/content/"],
+    ignores: [
+      "dist/",
+      ".astro/",
+      "node_modules/",
+      "src/content/",
+      "mcp-worker/",
+    ],
   },
   js.configs.recommended,
   {

@@ -12,7 +12,8 @@ and non-profits.
 - **Website:** [makerperks.com](https://makerperks.com)
 - **Agents:** [`/llms.txt`](https://makerperks.com/llms.txt) ·
   [`/llms-full.txt`](https://makerperks.com/llms-full.txt) ·
-  [`/perks.json`](https://makerperks.com/perks.json)
+  [`/perks.json`](https://makerperks.com/perks.json) ·
+  [MCP endpoint](https://mcp.makerperks.com/mcp)
 
 ## What makes it different
 
@@ -24,6 +25,35 @@ and non-profits.
   `perks.json`, and per-page schema.org JSON-LD — generated from the same source of
   truth, so they never drift.
 - **Curated, not exhaustive.** Builder + dev-adjacent scope only. No consumer deals.
+
+## Query it with your AI agent (MCP)
+
+The official [Model Context Protocol](https://modelcontextprotocol.io) server lets your
+AI agent **query** the directory directly — read-only tools (`search_perks`,
+`perks_for_persona`, `get_perk`, `list_personas`, `list_categories`) over the same data
+as `perks.json`, so an agent asks "what can an X claim?" instead of downloading and
+filtering the whole dataset. It's a Cloudflare Worker in [`mcp-worker/`](./mcp-worker).
+
+**Claude Code / Claude Desktop:**
+
+```bash
+claude mcp add --transport http makerperks https://mcp.makerperks.com/mcp
+```
+
+To make it available **everywhere** instead of just the current project, add it at
+user scope:
+
+```bash
+claude mcp add --transport http -s user makerperks https://mcp.makerperks.com/mcp
+```
+
+Other MCP clients: add `https://mcp.makerperks.com/mcp` as a Streamable-HTTP MCP server
+(legacy SSE clients can use `https://mcp.makerperks.com/sse`). Prefer raw data? Use
+[`/perks.json`](https://makerperks.com/perks.json) or
+[`/llms.txt`](https://makerperks.com/llms.txt).
+
+> There's also a community-run server by **Mick Darling** at
+> `https://makerperks.mcpaql.com/` — the same idea, independently hosted.
 
 ## How it works
 

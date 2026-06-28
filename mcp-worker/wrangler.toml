@@ -1,0 +1,30 @@
+name = "makerperks-mcp"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Source of truth: the published static dataset. Override per environment if needed.
+[vars]
+PERKS_JSON_URL = "https://www.makerperks.com/perks.json"
+
+# McpAgent persists each client session in a Durable Object (SQLite-backed).
+[[durable_objects.bindings]]
+name = "MCP_OBJECT"
+class_name = "MakerPerksMCP"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["MakerPerksMCP"]
+
+# Soft per-IP rate limit (no resource to create; namespace_id is an arbitrary int).
+# 120 requests / 60s per Cloudflare location — caps abuse without blocking real use.
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 120, period = 60 }
+
+# Custom domain — wrangler auto-provisions the DNS record when makerperks.com is a
+# zone on this Cloudflare account. Comment out to deploy to the *.workers.dev URL only.
+[[routes]]
+pattern = "mcp.makerperks.com"
+custom_domain = true
