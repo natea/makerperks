@@ -46,10 +46,10 @@
 
 ## 5. Promotion — via `/impeccable`
 
-- [ ] 5.1 Dismissible site-wide banner leading to `/contribute` (Trusted-Ledger
+- [x] 5.1 Dismissible site-wide banner leading to `/contribute` (Trusted-Ledger
   styling, not an off-brand yellow box)
-- [ ] 5.2 "Suggest a perk" card at the end of program listings → `/contribute`
-- [ ] 5.3 Point the header Contribute CTA at `/contribute` (GitHub guide linked from there)
+- [x] 5.2 "Suggest a perk" card at the end of program listings → `/contribute`
+- [x] 5.3 Point the header Contribute CTA at `/contribute` (GitHub guide linked from there)
 
 ## 6. Config & secrets
 

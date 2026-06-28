@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import ProgramCard from "../components/ProgramCard.astro";
+import SuggestPerk from "../components/SuggestPerk.astro";
 import { PERSONAS } from "../lib/personas";
 import {
   getPublishedPrograms,
@@ -68,6 +69,9 @@ const personaCounts = Object.fromEntries(
       </div>
       <div class="card-grid">
         {top.map((program) => <ProgramCard program={program} />)}
+      </div>
+      <div class="contribute-prompt">
+        <SuggestPerk />
       </div>
     </div>
   </section>
@@ -195,6 +199,9 @@ const personaCounts = Object.fromEntries(
       display: grid;
       gap: 0.9rem;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    .contribute-prompt {
+      margin-top: 2rem;
     }
   </style>
 </Base>

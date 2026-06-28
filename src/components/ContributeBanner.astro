@@ -1,0 +1,108 @@
+---
+// Site-wide, dismissible contribute prompt. Trusted-Ledger styling: a thin paper bar
+// with a hairline, one green accent on the link — deliberately not an off-brand yellow
+// callout. Visible by default (so it works without JS / for crawlers); the script hides
+// it when previously dismissed and persists the choice in localStorage.
+---
+
+<aside class="cbanner" aria-label="Contribute">
+  <div class="container cbanner__inner">
+    <p class="cbanner__text">
+      Know a perk builders are missing? <a href="/contribute">Suggest it →</a>
+    </p>
+    <button
+      type="button"
+      class="cbanner__dismiss"
+      data-dismiss
+      aria-label="Dismiss"
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+</aside>
+
+<script is:inline>
+  (function () {
+    var KEY = "mp-contribute-banner";
+    var el = document.querySelector(".cbanner");
+    if (!el) return;
+    try {
+      if (localStorage.getItem(KEY) === "dismissed") {
+        el.hidden = true;
+        return;
+      }
+    } catch (e) {}
+    var btn = el.querySelector("[data-dismiss]");
+    if (btn)
+      btn.addEventListener("click", function () {
+        el.hidden = true;
+        try {
+          localStorage.setItem(KEY, "dismissed");
+        } catch (e) {}
+      });
+  })();
+</script>
+
+<style>
+  .cbanner {
+    background: var(--surface);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .cbanner[hidden] {
+    display: none;
+  }
+  .cbanner__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 2.25rem;
+    padding-block: 0.4rem;
+    position: relative;
+  }
+  .cbanner__text {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+    text-align: center;
+  }
+  .cbanner__text a {
+    color: var(--green-ink);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .cbanner__text a:hover {
+    text-decoration: underline;
+  }
+  .cbanner__dismiss {
+    position: absolute;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-muted);
+    cursor: pointer;
+    border-radius: var(--r-sm);
+  }
+  .cbanner__dismiss:hover {
+    color: var(--ink);
+  }
+</style>
