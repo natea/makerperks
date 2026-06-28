@@ -24,6 +24,7 @@ export default [
         process: "readonly",
         URL: "readonly",
         fetch: "readonly",
+        AbortSignal: "readonly",
         Buffer: "readonly",
       },
     },
