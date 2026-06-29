@@ -105,6 +105,25 @@ export interface PrFile {
   content: string;
 }
 
+/** True if `path` already exists on the base branch (i.e. a submission updates it). */
+export async function fileExistsOnBase(
+  env: GitHubEnv,
+  path: string,
+): Promise<boolean> {
+  const token = await installationToken(env);
+  const res = await fetch(
+    `${API}/repos/${env.GITHUB_REPO}/contents/${encodeURI(path)}?ref=${encodeURIComponent(env.GITHUB_BASE_BRANCH)}`,
+    {
+      headers: {
+        authorization: `Bearer ${token}`,
+        accept: "application/vnd.github+json",
+        "user-agent": UA,
+      },
+    },
+  );
+  return res.ok;
+}
+
 /** Create a branch, commit the file(s), and open a PR. Returns the PR URL. */
 export async function openPr(
   env: GitHubEnv,
