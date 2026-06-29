@@ -180,8 +180,8 @@ const STATUSES = ["Active", "Beta", "Upcoming", "Discontinued"];
 
   {/* Step 3 — success */}
   <div class="step success" id="step-success" hidden role="status">
-    <h2 class="success__title">Submitted — thank you ✓</h2>
-    <p>
+    <h2 class="success__title" data-success-title>Submitted — thank you ✓</h2>
+    <p data-success-msg>
       Your perk is now a pull request for a maintainer to review and merge.
       Nothing publishes until then.
     </p>
@@ -434,7 +434,22 @@ const STATUSES = ["Active", "Beta", "Upcoming", "Discontinued"];
             if (res.d.details) msg += " — " + res.d.details.join("; ");
             throw new Error(msg);
           }
-          success.querySelector("[data-pr-link]").href = res.d.pr;
+          var prLink = success.querySelector("[data-pr-link]");
+          prLink.href = res.d.pr;
+          // Reflect update-vs-new: an update edits an existing listing.
+          if (res.d.update) {
+            success.querySelector("[data-success-title]").textContent =
+              "Update submitted — thank you ✓";
+            success.querySelector("[data-success-msg]").textContent =
+              "This perk already exists, so your edits are a pull request for a maintainer to review. Nothing changes until then.";
+            prLink.textContent = "View the update PR ↗";
+          } else {
+            success.querySelector("[data-success-title]").textContent =
+              "Submitted — thank you ✓";
+            success.querySelector("[data-success-msg]").textContent =
+              "Your perk is now a pull request for a maintainer to review and merge. Nothing publishes until then.";
+            prLink.textContent = "View the pull request ↗";
+          }
           show(success);
         })
         .catch(function (e2) {

@@ -12,7 +12,7 @@
  */
 import { extract } from "./extract";
 import { findDuplicate } from "./dedup";
-import { openPr, type GitHubEnv } from "./github";
+import { openPr, fileExistsOnBase, type GitHubEnv } from "./github";
 import {
   validateRecord,
   outOfScopeReason,
@@ -207,12 +207,12 @@ async function handleSubmit(
   const slug = slugify(record.title);
   const providerSlug = record.provider_slug;
   const branch = `suggest/${providerSlug}-${slug}`;
-  const files = [
-    {
-      path: `src/content/programs/${providerSlug}/${slug}.yaml`,
-      content: recordToYaml(record),
-    },
-  ];
+  const programPath = `src/content/programs/${providerSlug}/${slug}.yaml`;
+  const files = [{ path: programPath, content: recordToYaml(record) }];
+
+  // Does this perk already exist? Then the submission UPDATES a listing rather than
+  // adding a net-new one — reflect that in the PR title/body and the response.
+  const isUpdate = await fileExistsOnBase(env, programPath);
 
   // Add a provider record if this provider is new (best-effort; the build also handles it).
   const providerNew = payload.providerNew === true;
@@ -238,6 +238,9 @@ async function handleSubmit(
   const body = [
     `Submitted via the paste-a-URL contribute flow (agent-extracted, **needs review**).`,
     ``,
+    isUpdate
+      ? `- ⚠️ **Updates an existing listing** (\`${programPath}\`) — review the diff, don't assume it's net-new.`
+      : `- Net-new listing.`,
     `- Source URL: ${record.url}`,
     `- Provider: \`${providerSlug}\``,
     dedupLine,
@@ -250,10 +253,14 @@ async function handleSubmit(
 
   const pr = await openPr(env, {
     branch,
-    title: `Add ${record.title} (${providerSlug})`,
+    title: `${isUpdate ? "Update" : "Add"} ${record.title} (${providerSlug})`,
     body,
     files,
   });
 
-  return json({ ok: true, pr: pr.url, number: pr.number }, 200, cors);
+  return json(
+    { ok: true, pr: pr.url, number: pr.number, update: isUpdate },
+    200,
+    cors,
+  );
 }
