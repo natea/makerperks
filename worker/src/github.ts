@@ -23,7 +23,10 @@ function b64std(bytes: ArrayBuffer | Uint8Array): string {
 }
 
 function b64url(bytes: ArrayBuffer | Uint8Array): string {
-  return b64std(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return b64std(bytes)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 function pemToDer(pem: string): Uint8Array {
@@ -39,9 +42,13 @@ function pemToDer(pem: string): Uint8Array {
 
 async function appJwt(appId: string, privateKeyPem: string): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
-  const header = b64url(new TextEncoder().encode(JSON.stringify({ alg: "RS256", typ: "JWT" })));
+  const header = b64url(
+    new TextEncoder().encode(JSON.stringify({ alg: "RS256", typ: "JWT" })),
+  );
   const payload = b64url(
-    new TextEncoder().encode(JSON.stringify({ iat: now - 30, exp: now + 540, iss: appId })),
+    new TextEncoder().encode(
+      JSON.stringify({ iat: now - 30, exp: now + 540, iss: appId }),
+    ),
   );
   const signingInput = `${header}.${payload}`;
   const key = await crypto.subtle.importKey(
@@ -72,7 +79,10 @@ async function installationToken(env: GitHubEnv): Promise<string> {
       },
     },
   );
-  if (!res.ok) throw new Error(`installation token failed: ${res.status} ${await res.text()}`);
+  if (!res.ok)
+    throw new Error(
+      `installation token failed: ${res.status} ${await res.text()}`,
+    );
   return ((await res.json()) as { token: string }).token;
 }
 
@@ -108,7 +118,8 @@ export async function openPr(
   // Base SHA
   const refRes = await api(`/repos/${repo}/git/ref/heads/${base}`);
   if (!refRes.ok) throw new Error(`read base ref failed: ${refRes.status}`);
-  const baseSha = ((await refRes.json()) as { object: { sha: string } }).object.sha;
+  const baseSha = ((await refRes.json()) as { object: { sha: string } }).object
+    .sha;
 
   // Branch
   const branchRes = await api(`/repos/${repo}/git/refs`, {
@@ -116,27 +127,55 @@ export async function openPr(
     body: JSON.stringify({ ref: `refs/heads/${opts.branch}`, sha: baseSha }),
   });
   if (!branchRes.ok && branchRes.status !== 422)
-    throw new Error(`create branch failed: ${branchRes.status} ${await branchRes.text()}`);
+    throw new Error(
+      `create branch failed: ${branchRes.status} ${await branchRes.text()}`,
+    );
 
-  // Commit each file via the contents API
+  // Commit each file via the contents API. If the path already exists on the branch
+  // (a pre-existing record, or a leftover commit from a retried submission), GitHub
+  // requires the current blob `sha` to update it — a create-only PUT 422s with
+  // "sha wasn't supplied". So look it up first and update in place when present.
   for (const f of opts.files) {
-    const put = await api(`/repos/${repo}/contents/${encodeURI(f.path)}`, {
+    const path = encodeURI(f.path);
+    let sha: string | undefined;
+    const head = await api(
+      `/repos/${repo}/contents/${path}?ref=${encodeURIComponent(opts.branch)}`,
+    );
+    if (head.ok) {
+      sha = ((await head.json()) as { sha: string }).sha;
+    } else if (head.status !== 404) {
+      throw new Error(
+        `read ${f.path} failed: ${head.status} ${await head.text()}`,
+      );
+    }
+
+    const put = await api(`/repos/${repo}/contents/${path}`, {
       method: "PUT",
       body: JSON.stringify({
-        message: `Add ${f.path}`,
+        message: `${sha ? "Update" : "Add"} ${f.path}`,
         content: b64std(new TextEncoder().encode(f.content)), // contents API: standard base64
         branch: opts.branch,
+        ...(sha ? { sha } : {}),
       }),
     });
-    if (!put.ok) throw new Error(`commit ${f.path} failed: ${put.status} ${await put.text()}`);
+    if (!put.ok)
+      throw new Error(
+        `commit ${f.path} failed: ${put.status} ${await put.text()}`,
+      );
   }
 
   // PR
   const prRes = await api(`/repos/${repo}/pulls`, {
     method: "POST",
-    body: JSON.stringify({ title: opts.title, head: opts.branch, base, body: opts.body }),
+    body: JSON.stringify({
+      title: opts.title,
+      head: opts.branch,
+      base,
+      body: opts.body,
+    }),
   });
-  if (!prRes.ok) throw new Error(`open PR failed: ${prRes.status} ${await prRes.text()}`);
+  if (!prRes.ok)
+    throw new Error(`open PR failed: ${prRes.status} ${await prRes.text()}`);
   const pr = (await prRes.json()) as { html_url: string; number: number };
   return { url: pr.html_url, number: pr.number };
 }
