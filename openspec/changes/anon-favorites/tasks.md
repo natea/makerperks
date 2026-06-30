@@ -18,37 +18,37 @@
 
 ## 1. Substrate extensions (engagement-worker) — no impeccable
 
-- [ ] 1.1 `removeEvent(session, target, type)` in the store interface + `store-memory` +
+- [x] 1.1 `removeEvent(session, target, type)` in the store interface + `store-memory` +
   `store-d1` (`DELETE FROM events WHERE session_id=? AND target=? AND type=?`); idempotent
-- [ ] 1.2 `listBySession(session, type)` → targets, **owner-resolved**
+- [x] 1.2 `listBySession(session, type)` → targets, **owner-resolved**
   (`COALESCE(sessions.user_id, events.session_id)`); `store-memory` + `store-d1`
-- [ ] 1.3 `bulkCounts(type, min, cap)` → owner-deduped counts for every target with
+- [x] 1.3 `bulkCounts(type, min, cap)` → owner-deduped counts for every target with
   `count >= min`, capped (`GROUP BY target HAVING COUNT(DISTINCT owner) >= ?`); excludes
   sub-threshold; `store-memory` + `store-d1`
-- [ ] 1.4 Handler: `DELETE /event`, `GET /mine?session=&type=`, and
+- [x] 1.4 Handler: `DELETE /event`, `GET /mine?session=&type=`, and
   `GET /counts?type=&min=` — reuse CORS/rate-limit/bot/validate gates; `/counts` carries a
   `Cache-Control` for edge caching and returns counts only (no identifiers)
-- [ ] 1.5 Worker tests: remove idempotent + drops from aggregate; `/mine` returns the
+- [x] 1.5 Worker tests: remove idempotent + drops from aggregate; `/mine` returns the
   session's targets and **resolves by owner after `linkSessions`**; `/counts` returns only
   `>= min`, excludes sub-threshold, respects the cap; gates reject bad origin / over-limit / bots
 
 ## 2. Client favorites + counts helper (site) — no impeccable
 
-- [ ] 2.1 Extend `src/lib/engagement.ts`: `unfavorite(target)` → `DELETE /event`; a
+- [x] 2.1 Extend `src/lib/engagement.ts`: `unfavorite(target)` → `DELETE /event`; a
   localStorage **mirror** (`mp_favs`) of saved target-ids; `isFavorited(target)` and
   `listFavorites()` reading the mirror; `syncMine()` reconciling the mirror against `GET /mine`
-- [ ] 2.2 Counts cache (`mp_counts`, stale-while-revalidate): `loadCounts()` returns the
+- [x] 2.2 Counts cache (`mp_counts`, stale-while-revalidate): `loadCounts()` returns the
   cached map immediately and revalidates via `GET /counts?type=favorite&min=<threshold>`;
   refresh on a TTL and after any write; expose a subscribe/update hook so rendered counts
   update in place; all no-op when the endpoint is unconfigured
-- [ ] 2.3 Keep mint-on-action (saving mints the session id; counts reads stay anonymous and
+- [x] 2.3 Keep mint-on-action (saving mints the session id; counts reads stay anonymous and
   never mint)
 
 ## 3. Config + agent surface — no impeccable
 
-- [ ] 3.1 Add the `PUBLIC_FAVORITES_COUNT_MIN` threshold knob (modest default) that the
+- [x] 3.1 Add the `PUBLIC_FAVORITES_COUNT_MIN` threshold knob (modest default) that the
   client passes as `min`; document it + reuse of `PUBLIC_ENGAGEMENT_ENDPOINT` in `.env.example`
-- [ ] 3.2 `llms.txt`: reference the live `GET /counts` endpoint for agent-readable popularity
+- [x] 3.2 `llms.txt`: reference the live `GET /counts` endpoint for agent-readable popularity
   (Decision 8); do **not** bake count values into the static text
 
 ## 4. UI presentation — **impeccable REQUIRED**
@@ -69,14 +69,14 @@
 
 ## 5. Privacy — no impeccable
 
-- [ ] 5.1 Confirm the substrate's `/privacy` "Saving perks" disclosure covers this feature;
+- [x] 5.1 Confirm the substrate's `/privacy` "Saving perks" disclosure covers this feature;
   note that the anonymous counts fetch stores nothing; adjust copy only if wording needs it
 
 ## 6. Verify — no impeccable
 
-- [ ] 6.1 `engagement-worker` typecheck + tests green (remove + mine + counts + owner-
+- [x] 6.1 `engagement-worker` typecheck + tests green (remove + mine + counts + owner-
   resolution + cache headers)
-- [ ] 6.2 Site typecheck + lint + `npm run build` with the endpoint **unconfigured** → no
+- [x] 6.2 Site typecheck + lint + `npm run build` with the endpoint **unconfigured** → no
   hearts, no counts, build succeeds, and **no count values present in the static output**
   (counts are never baked)
 - [ ] 6.3 With the endpoint **configured** (local `wrangler dev` + seeded D1): hearts toggle
