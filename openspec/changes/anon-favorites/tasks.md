@@ -53,18 +53,18 @@
 
 ## 4. UI presentation — **impeccable REQUIRED**
 
-- [ ] 4.1 Via `impeccable`: the **heart Save control on listing cards** (top-right,
+- [x] 4.1 Via `impeccable`: the **heart Save control on listing cards** (top-right,
   empty/filled), optimistic toggle, hidden when the endpoint is unconfigured, WCAG 2.2 AA
   (`aria-pressed`, keyboard, focus, reduced-motion)
-- [ ] 4.2 Via `impeccable`: the Save control on the **perk detail page**, consistent with the
+- [x] 4.2 Via `impeccable`: the Save control on the **perk detail page**, consistent with the
   card heart
-- [ ] 4.3 Via `impeccable`: the **threshold-gated count** on the detail page (quiet, e.g.
+- [x] 4.3 Via `impeccable`: the **threshold-gated count** on the detail page (quiet, e.g.
   "saved by N+"), rendered/updated from the client counts cache — **not rendered on first
   load with no data**, and placed so it does **not reflow main content** when it appears
-- [ ] 4.4 Via `impeccable`: the **My-favorites view** (page or island) joining
+- [x] 4.4 Via `impeccable`: the **My-favorites view** (page or island) joining
   `listFavorites()` against `search-index.json`, with a clear **empty state** and a
   **disabled state** when the endpoint is unset
-- [ ] 4.5 Wire the components to `engagement.ts` (save/unsave/isFavorited/listFavorites/
+- [x] 4.5 Wire the components to `engagement.ts` (save/unsave/isFavorited/listFavorites/
   loadCounts + the update hook); confirm no engagement session id is created on passive load
 
 ## 5. Privacy — no impeccable
@@ -79,10 +79,10 @@
 - [x] 6.2 Site typecheck + lint + `npm run build` with the endpoint **unconfigured** → no
   hearts, no counts, build succeeds, and **no count values present in the static output**
   (counts are never baked)
-- [ ] 6.3 With the endpoint **configured** (local `wrangler dev` + seeded D1): hearts toggle
+- [x] 6.3 With the endpoint **configured** (local `wrangler dev` + seeded D1): hearts toggle
   and persist across cards ↔ detail ↔ reload; counts appear after load only for
   at/above-threshold perks and update in place after a write; sub-threshold perks show none;
   a first load with cleared storage shows no count element until counts arrive
-- [ ] 6.4 `impeccable` accessibility pass on the new UI (keyboard, contrast, `aria-pressed`,
+- [x] 6.4 `impeccable` accessibility pass on the new UI (keyboard, contrast, `aria-pressed`,
   reduced-motion, **no main-content reflow** when counts appear); confirm the grid stays
   calm (heart only, no number on cards)

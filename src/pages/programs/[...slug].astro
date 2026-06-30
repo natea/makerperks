@@ -10,6 +10,7 @@ import { programJsonLd } from "../../lib/jsonld";
 import { label } from "../../lib/labels";
 import { withUtm } from "../../lib/utm";
 import logoManifest from "../../data/logo-manifest.json";
+import SaveButton from "../../components/SaveButton.astro";
 
 export async function getStaticPaths() {
   const programs = await getPublishedPrograms();
@@ -37,6 +38,8 @@ const hasLogo = (logoManifest as string[]).includes(d.provider_slug);
 // official page (see withUtm). Low-cardinality props are reused for the Umami events.
 const utmCampaign = d.audience[0] ?? "directory";
 const utmContent = program.id;
+// Build-time gate: no engagement endpoint → no Save control / count rendered at all.
+const engagementOn = Boolean(import.meta.env.PUBLIC_ENGAGEMENT_ENDPOINT);
 ---
 
 <Base
@@ -55,6 +58,13 @@ const utmContent = program.id;
     </nav>
 
     <header class="detail__head">
+      {
+        engagementOn && (
+          <div class="detail__save">
+            <SaveButton target={program.id} label={d.title} variant="detail" />
+          </div>
+        )
+      }
       <div class="detail__brand">
         {
           hasLogo ? (
@@ -89,6 +99,17 @@ const utmContent = program.id;
         <span class="chip chip--quiet">
           verified <time datetime={d.verified} class="tnum">{d.verified}</time>
         </span>
+        {
+          engagementOn && (
+            <span
+              class="chip chip--quiet fav-count"
+              data-fav-count={program.id}
+              hidden
+            >
+              Saved by <span class="tnum" data-fav-count-n />+
+            </span>
+          )
+        }
       </div>
 
       <div class="who">
@@ -256,8 +277,20 @@ const utmContent = program.id;
     }
 
     .detail__head {
+      position: relative;
       padding-bottom: 1.5rem;
       border-bottom: 1px solid var(--hairline);
+    }
+    /* Save control, top-right of the header (aligned with the brand row). */
+    .detail__save {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    /* The popularity count sits with the other meta chips; revealed by JS only when
+       a perk is at/above the threshold, so it never reflows the page. */
+    .fav-count[hidden] {
+      display: none;
     }
     .detail__brand {
       display: flex;
