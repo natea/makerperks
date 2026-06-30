@@ -67,7 +67,13 @@ const searchText =
       </div>
       {
         engagementOn && (
-          <SaveButton target={program.id} label={d.title} variant="card" />
+          <>
+            <span class="card__saves" data-fav-count={program.id} hidden>
+              <span class="tnum" data-fav-count-n />+
+              <span class="visually-hidden"> saved</span>
+            </span>
+            <SaveButton target={program.id} label={d.title} variant="card" />
+          </>
         )
       }
     </div>
@@ -138,7 +144,7 @@ const searchText =
     gap: 0.55rem;
     min-width: 0;
   }
-  /* Flags + Save heart, pinned to the card's top-right. */
+  /* Flags + popularity count + Save heart, pinned to the card's top-right. */
   .card__head-right {
     display: flex;
     align-items: center;
@@ -146,6 +152,19 @@ const searchText =
     flex: none;
     /* Nudge the heart toward the corner, optically aligned with the logo row. */
     margin: -0.15rem -0.2rem -0.15rem 0;
+  }
+  /* Popularity: a quiet bucketed count beside the heart. Threshold-gated + revealed by
+     JS, so most cards show nothing and the grid stays calm. Muted (the red stays
+     exclusive to the user's own saved heart); tabular figures. */
+  .card__saves {
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .card__saves[hidden] {
+    display: none;
   }
   /* Uniform square so cards align regardless of source aspect ratio. */
   .card__logo {

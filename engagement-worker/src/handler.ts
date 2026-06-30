@@ -277,7 +277,9 @@ async function handleCounts(
       status: 200,
       headers: {
         "content-type": "application/json; charset=utf-8",
-        "cache-control": "public, max-age=300, s-maxage=300",
+        // Browser must revalidate (so a just-saved count isn't masked by the HTTP
+        // cache); the edge/CDN still caches for 5 min via s-maxage (scale preserved).
+        "cache-control": "public, max-age=0, s-maxage=300",
         ...cors,
       },
     },

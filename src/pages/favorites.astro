@@ -173,7 +173,10 @@ import Base from "../layouts/Base.astro";
   render();
 </script>
 
-<style>
+<!-- is:global because the list items are created in JS (document.createElement); Astro's
+     default scoped styles only attach to server-rendered markup, so the dynamic rows would
+     ship unstyled. Class names are page-unique and only loaded on /favorites. -->
+<style is:global>
   .favs {
     padding-block: clamp(2rem, 1.4rem + 3vw, 3.5rem);
   }
@@ -320,7 +323,7 @@ import Base from "../layouts/Base.astro";
     border: 1px solid transparent;
     border-radius: 999px;
     background: transparent;
-    color: var(--green-ink);
+    color: var(--heart-deep);
     cursor: pointer;
     transition:
       color 0.16s ease,
@@ -330,8 +333,8 @@ import Base from "../layouts/Base.astro";
   .fav-item__remove svg {
     width: 1.15rem;
     height: 1.15rem;
-    fill: var(--green);
-    stroke: var(--green-deep);
+    fill: var(--heart);
+    stroke: var(--heart-deep);
     stroke-width: 1.5;
     stroke-linejoin: round;
   }

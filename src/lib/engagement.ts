@@ -61,6 +61,19 @@ function getOrCreateSessionId(): string {
   return id;
 }
 
+/**
+ * Report an engagement action to Umami (cookieless analytics, loaded site-wide). This
+ * is the *analytics* plane (trends, funnels, persona breakdowns) — complementary to the
+ * worker's deduped counts (the *product* plane). No-op if Umami isn't present.
+ */
+function trackUmami(event: string, data?: Record<string, unknown>): void {
+  (
+    window as unknown as {
+      umami?: { track: (e: string, d?: Record<string, unknown>) => void };
+    }
+  ).umami?.track(event, data);
+}
+
 async function send(
   method: string,
   path: string,
@@ -98,6 +111,7 @@ function setFavorites(list: string[]): void {
 export async function favorite(target: string): Promise<void> {
   if (!isEngagementEnabled()) return;
   setFavorites([...getFavorites(), target]);
+  trackUmami("save", { program: target });
   await send("POST", "/event", {
     session: getOrCreateSessionId(),
     target,
@@ -109,6 +123,7 @@ export async function favorite(target: string): Promise<void> {
 export async function unfavorite(target: string): Promise<void> {
   if (!isEngagementEnabled()) return;
   setFavorites(getFavorites().filter((t) => t !== target));
+  trackUmami("unsave", { program: target });
   const session = getExistingSessionId();
   if (session)
     await send("DELETE", "/event", { session, target, type: FAV_TYPE });
@@ -130,6 +145,7 @@ export async function syncMine(): Promise<void> {
   try {
     const res = await fetch(
       `${ENDPOINT}/mine?type=${FAV_TYPE}&session=${encodeURIComponent(session)}`,
+      { cache: "no-store" },
     );
     if (!res.ok) return;
     const data = (await res.json()) as { targets?: string[] };
@@ -176,8 +192,11 @@ function cacheAgeMs(): number {
 export async function refreshCounts(): Promise<CountsMap> {
   if (!isEngagementEnabled()) return {};
   try {
+    // no-store: bypass the browser HTTP cache so the client SWR (localStorage) is the
+    // single cache authority; the edge still serves its cached copy for scale.
     const res = await fetch(
       `${ENDPOINT}/counts?type=${FAV_TYPE}&min=${THRESHOLD}`,
+      { cache: "no-store" },
     );
     if (!res.ok) return getCachedCounts();
     const data = (await res.json()) as { counts?: CountsMap };

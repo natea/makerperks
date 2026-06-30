@@ -78,11 +78,11 @@ const { target, label, variant = "card" } = Astro.props;
     transform: scale(0.9);
   }
   .fav[aria-pressed="true"] {
-    color: var(--green-ink);
+    color: var(--heart-deep);
   }
   .fav[aria-pressed="true"] .fav__icon {
-    fill: var(--green);
-    stroke: var(--green-deep);
+    fill: var(--heart);
+    stroke: var(--heart-deep);
   }
   /* Pop only on a deliberate save (class added by the controller), never on load. */
   @media (prefers-reduced-motion: no-preference) {
