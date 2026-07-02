@@ -1,8 +1,8 @@
 provider_slug: vercel
 title: Vercel for Startups
-summary: Vercel's startup program providing platform access for teams building and scaling web and AI applications from MVP to IP
-intro: A dedicated startup program giving early-stage teams access to Vercel's platform to deploy faster, scale globally, and ship AI products — from MVP to IPO.
-description: Vercel for Startups is a program designed for early-stage and growth-stage startup founders. It offers access to Vercel's unified frontend cloud platform, including zero-config deployments, global content delivery, AI-powered development tools (v0, AI SDK), agentic code reviews, preview deployments for team collaboration, and out-of-the-box security features. The program is backed by startup partners and targets teams building from zero to IPO. Interested startups must apply via a contact form. Specific credit amounts or discount values are not publicly stated on the page.
+summary: Vercel's startup program for teams building and scaling web and AI products on its frontend cloud platform.
+intro: A startup program offering early-stage teams access to Vercel's platform for deploying, scaling, and shipping AI products — from MVP to IPO.
+description: Vercel for Startups is a program designed for early-stage and growth-stage startups building on Vercel's unified frontend cloud platform. Members get access to Vercel's full suite including zero-config deployments, Fluid Compute, Content Delivery, Observability, Security (WAF, Bot Management, BotID), AI tools (v0, AI SDK, AI Gateway, Sandboxes), and collaborative preview deployments. The program is backed by startup partners and targets teams scaling from MVP to IPO. Interested startups can apply via a contact form; specific credit amounts or discount values are not publicly stated on the page.
 url: https://vercel.com/startups
 value_type: free_tier
 currency: USD
@@ -14,7 +14,7 @@ tags:
   - dev tools
   - ai
   - infra
-  - ci/cd
+  - SaaS
 sources:
   - makerperks
-verified: 2026-06-28
+verified: 2026-07-02
