@@ -1,8 +1,9 @@
 ---
 /**
- * Client controller for the favorites surface. Renders no markup — it ships the
- * script that hydrates every Save heart, the popularity counts, and the "Saved" nav
- * count. Included once by Base.astro, only when engagement is configured.
+ * Client controller for the engagement surface. Renders no markup — it ships the
+ * script that hydrates every Save heart, the popularity counts, the "Saved" nav count,
+ * and records redeem-button clicks. Included once by Base.astro, only when engagement
+ * is configured.
  */
 ---
 
@@ -14,6 +15,7 @@
     getFavorites,
     loadCounts,
     onCountsUpdate,
+    recordRedeemClick,
   } from "../lib/engagement";
 
   if (isEngagementEnabled()) {
@@ -69,6 +71,21 @@
       };
       render(loadCounts()); // cache first (may be empty → stays hidden)
       onCountsUpdate(render); // then revalidated counts, in place
+    }
+
+    // --- Redeem-click recording (detail pages) ---
+    // Record a redeem-click for the perk on every redeem/apply control. Beacon-based
+    // (survives the outbound nav); NEVER preventDefault — the navigation and the existing
+    // Umami redeem event both proceed. The substrate dedups (session, perk, redeem-click),
+    // so main + tier clicks by one visitor collapse to a single unique redeem-clicker.
+    const redeemEls = document.querySelectorAll<HTMLElement>("[data-redeem]");
+    for (const el of redeemEls) {
+      const perk = el.dataset.redeem!;
+      const fire = () => recordRedeemClick(perk);
+      el.addEventListener("click", fire); // left-click, modified-click, keyboard
+      el.addEventListener("auxclick", (event) => {
+        if ((event as MouseEvent).button === 1) fire(); // middle-click (open in new tab)
+      });
     }
   }
 </script>

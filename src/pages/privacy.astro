@@ -88,7 +88,7 @@ const ENGAGEMENT_ENABLED = Boolean(import.meta.env.PUBLIC_ENGAGEMENT_ENDPOINT);
       {
         ENGAGEMENT_ENABLED && (
           <>
-            <h2>Saving perks</h2>
+            <h2>Saving and redeeming perks</h2>
             <p>
               If you save a perk (add it to favorites), we store a{" "}
               <strong>first-party functional identifier</strong> in your
@@ -102,6 +102,13 @@ const ENGAGEMENT_ENABLED = Boolean(import.meta.env.PUBLIC_ENGAGEMENT_ENDPOINT);
               forgets it. Our cookieless page analytics (above) is separate and
               unaffected. We may also show how many people saved a perk — an
               anonymous, aggregate count that cannot identify anyone.
+            </p>
+            <p>
+              In the same way, when you click a perk's <strong>Redeem</strong>{" "}
+              button we record that click against the same anonymous identifier.
+              This tells us which perks builders choose to pursue; it records
+              the click, <strong>not</strong> whether you completed the sign-up
+              on the provider's own site (which we never see).
             </p>
           </>
         )

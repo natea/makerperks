@@ -27,6 +27,7 @@ const FAVS_KEY = "mp_favs";
 const COUNTS_KEY = "mp_counts";
 const COUNTS_TTL_MS = 5 * 60 * 1000;
 const FAV_TYPE = "favorite";
+const REDEEM_TYPE = "redeem-click";
 
 /** Enabled only when an endpoint is configured AND we're in a browser. */
 export function isEngagementEnabled(): boolean {
@@ -227,4 +228,48 @@ export async function recordEvent(
     target,
     type,
   });
+}
+
+/**
+ * Record a click that navigates away immediately (redeem / tier-apply). Uses
+ * `navigator.sendBeacon` so the event survives the outbound navigation — a plain fetch
+ * can be cancelled on unload. Fire-and-forget: it NEVER blocks, delays, or cancels the
+ * click (call it without preventDefault). Mints/reuses `mp_sid` like every other action.
+ *
+ * Sent as text/plain: the Worker parses the body as JSON regardless of content-type, and
+ * text/plain keeps this a CORS "simple request" (no preflight OPTIONS to race the unload).
+ */
+export function recordClick(target: string, type: string): void {
+  if (!isEngagementEnabled()) return;
+  const url = `${ENDPOINT}/event`;
+  const body = JSON.stringify({
+    session: getOrCreateSessionId(),
+    target,
+    type,
+  });
+  try {
+    if (
+      typeof navigator.sendBeacon === "function" &&
+      navigator.sendBeacon(url, new Blob([body], { type: "text/plain" }))
+    ) {
+      return;
+    }
+  } catch {
+    /* fall through to keepalive fetch */
+  }
+  try {
+    void fetch(url, {
+      method: "POST",
+      headers: { "content-type": "text/plain" },
+      body,
+      keepalive: true,
+    });
+  } catch {
+    /* best-effort — a dropped beacon just slightly undercounts */
+  }
+}
+
+/** Record a redeem/apply click (the `redeem-click` event) for a perk. */
+export function recordRedeemClick(target: string): void {
+  recordClick(target, REDEEM_TYPE);
 }

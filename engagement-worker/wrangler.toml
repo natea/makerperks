@@ -14,9 +14,10 @@ invocation_logs = true
 # Comma-separated origins allowed to call the API (CORS). Production site + local dev.
 ALLOWED_ORIGINS = "https://makerperks.com,https://www.makerperks.com,http://localhost:4321"
 # Event types this substrate accepts. Low-stakes by default; add types as features land.
-EVENT_TYPES = "favorite,redeem"
+# redeem-click: a click on a perk's Redeem/apply button (deduped → unique redeem-clickers).
+EVENT_TYPES = "favorite,redeem-click"
 # Event types that REQUIRE a Turnstile token (escalation). Empty by default — a
-# low-stakes favorite needs no challenge. e.g. set to "redeem" if a type gets abused.
+# low-stakes favorite or redeem click needs no challenge. e.g. add a type if it gets abused.
 CHALLENGE_EVENT_TYPES = ""
 
 # D1 — the engagement store. Create it once with:
@@ -26,7 +27,7 @@ CHALLENGE_EVENT_TYPES = ""
 [[d1_databases]]
 binding = "DB"
 database_name = "makerperks-engagement"
-database_id = "687d8b8f-b9db-426b-81c9-dcdd37759a72"
+database_id = "1f7d6d10-cc2e-4927-9d61-f50ca0de02a4"
 migrations_dir = "migrations"
 
 # Per-IP soft rate limit (no resource to create; namespace_id is an arbitrary int).

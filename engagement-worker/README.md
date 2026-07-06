@@ -65,6 +65,33 @@ npm run dev       # local: http://localhost:8787 (needs a local D1, see below)
 CORS (`ALLOWED_ORIGINS`), accepted `EVENT_TYPES`, and `CHALLENGE_EVENT_TYPES` are
 non-secret `[vars]` in `wrangler.toml`.
 
+## Metrics (unique clickers / savers — never raw clicks)
+
+Every count this substrate reports is a count of **unique identities**, because writes are
+deduplicated per `(session, target, type)`. It cannot report raw event volume by design.
+Two event types are recorded today:
+
+| Event type     | `GET /counts?type=…` | Metric it yields                    |
+| -------------- | -------------------- | ----------------------------------- |
+| `favorite`     | `?type=favorite`     | unique **savers** per perk          |
+| `redeem-click` | `?type=redeem-click` | unique **redeem-clickers** per perk |
+
+So `GET /counts?type=redeem-click&min=1` returns **redeem-clickers, not clicks** — the
+number of distinct people who clicked a perk's Redeem/apply button (a visitor who clicks
+the main button and a tier button counts once). Raw redeem **click volume** lives only in
+the cookieless Umami `redeem` event; the two are complementary and must not be conflated
+(e.g. report "240 unique redeem-clickers · 380 total clicks").
+
+Read the internal digest across all perks:
+
+```sh
+PUBLIC_ENGAGEMENT_ENDPOINT=<worker url> node scripts/engagement-metrics.mjs
+#   --min <n>   only perks with >= n  ·  --json   machine-readable
+```
+
+Because redeem and save share the same owner, a save→redeem funnel is available too (join
+`favorite` and `redeem-click` per owner) — a fast follow, not built here.
+
 ## Retention / TTL
 
 Anonymous sessions that never convert to an account are pruned on a schedule;
