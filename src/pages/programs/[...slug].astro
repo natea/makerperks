@@ -119,6 +119,7 @@ const engagementOn = Boolean(import.meta.env.PUBLIC_ENGAGEMENT_ENDPOINT);
         href={withUtm(d.url, { campaign: utmCampaign, content: utmContent })}
         rel="noopener"
         target="_blank"
+        data-redeem={engagementOn ? program.id : undefined}
         data-umami-event="redeem"
         data-umami-event-provider={d.provider_slug}
         data-umami-event-program={program.id}
@@ -209,6 +210,9 @@ const engagementOn = Boolean(import.meta.env.PUBLIC_ENGAGEMENT_ENDPOINT);
                                 })}
                                 rel="noopener"
                                 target="_blank"
+                                data-redeem={
+                                  engagementOn ? program.id : undefined
+                                }
                                 data-umami-event="tier-apply"
                                 data-umami-event-provider={d.provider_slug}
                                 data-umami-event-program={program.id}
