@@ -1,0 +1,21 @@
+provider_slug: kilobat
+title: Kilobat Pro for Students
+summary: Network diagnostics and bandwidth controls for macOS
+intro: Eligible students can request one year of Kilobat Pro free for two Macs.
+description: >-
+  Kilobat is a macOS network diagnostics and bandwidth management app. Students
+  aged 13 or older enrolled in a qualifying degree-granting course can request
+  one year of Pro for two Macs by emailing from their school address. Students
+  who remain enrolled can request another year using their school email. No
+  payment or Kilobat account is needed. The desktop app is proprietary; the
+  separate command-line tool is open source.
+status: Active
+tags: [dev tools, productivity]
+url: https://kilobat.app/students
+value_type: discount
+currency: USD
+max_value: 100
+audience: [student]
+region: unspecified
+sources: [makerperks]
+verified: "2026-11-02"
