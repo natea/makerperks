@@ -1,0 +1,20 @@
+provider_slug: keenable
+title: Keenable AI Startups Program
+summary: Web search API for AI agents, built on its own index of 100B+ web documents
+intro: $5,000 in Keenable credits for six months, plus onboarding and launch support for AI startups.
+description: Keenable is a web search API for AI agents, built on its own index of more than 100 billion web documents. Startups in the program receive $5,000 in Keenable credits, one-time and valid for six months across all Keenable products (Web Search API and Keenable SELECT), with continuous daily spend. At today's prices, that's about 1.25 million search requests or 50,000 Keenable SELECT queries. The program also includes a shared Slack channel with the Keenable team, a call with an engineer, and help promoting the launch. Open to startups backed by Accel or Conviction, AI teams building something ambitious with less than $50M in funding, and friends and partners of Keenable.
+url: https://keenable.ai/startups
+value_type: credits
+currency: USD
+max_value: 5000
+audience:
+  - startup
+tags:
+  - ai
+  - search
+  - api
+  - agents
+  - dev tools
+sources:
+  - makerperks
+verified: 2026-11-23
